@@ -39,7 +39,7 @@ export function SyncOnLogin() {
         const data = await syncRes.json() as { imported?: number; message?: string; error?: string };
 
         if (syncRes.ok && data.imported != null && data.imported > 0) {
-          toast(`Fitbit: синхронизировано ${data.imported} записей`, 'success');
+          toast(`Google Health: синхронизировано ${data.imported} записей`, 'success');
         }
       } catch {
         // Фоновая синхронизация — не показываем ошибку пользователю

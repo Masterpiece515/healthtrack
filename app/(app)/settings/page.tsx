@@ -389,11 +389,11 @@ export default function SettingsPage() {
 
           <div className="border-t border-[#c5d3f0]/20" />
 
-          {/* Fitbit */}
+          {/* Google Health */}
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <Activity className="w-5 h-5 text-[#00B0B9]" />
-              <h3 className="text-sm font-semibold text-[#1a1e5e]">Fitbit</h3>
+              <Activity className="w-5 h-5 text-[#4285F4]" />
+              <h3 className="text-sm font-semibold text-[#1a1e5e]">Google Health</h3>
               {gfConnected && (
                 <span className="px-2 py-0.5 bg-green-500/15 text-green-600 text-xs rounded-full font-medium">
                   Подключён
@@ -401,11 +401,9 @@ export default function SettingsPage() {
               )}
             </div>
             <p className="text-xs text-[#4a5a8a] mb-3">
-              Синхронизирует шаги, сон, пульс и вес из Fitbit за последние 30 дней.
-              Нужны переменные <span className="font-mono">FITBIT_CLIENT_ID</span> и{' '}
-              <span className="font-mono">FITBIT_CLIENT_SECRET</span> из{' '}
-              <a href="https://dev.fitbit.com/apps" target="_blank" rel="noopener noreferrer"
-                 className="text-[#00B0B9] underline">dev.fitbit.com</a>.
+              Синхронизирует шаги, сон, пульс и вес из Google Health (Fitbit) за последние 30 дней.
+              Нужно включить <span className="font-mono">Google Health API</span> в Google Cloud Console
+              и добавить health-scopes в OAuth consent screen.
             </p>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               {!gfConnected ? (
@@ -414,11 +412,11 @@ export default function SettingsPage() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   className="flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5
-                             bg-[#00B0B9]/15 hover:bg-[#00B0B9]/25 text-[#00B0B9]
+                             bg-[#4285F4]/15 hover:bg-[#4285F4]/25 text-[#4285F4]
                              font-medium rounded-xl text-sm transition-colors"
                 >
                   <Link2 className="w-4 h-4" />
-                  Подключить Fitbit
+                  Подключить Google Health
                 </motion.a>
               ) : (
                 <>
@@ -428,7 +426,7 @@ export default function SettingsPage() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     className="flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5
-                               bg-[#00B0B9]/15 hover:bg-[#00B0B9]/25 text-[#00B0B9]
+                               bg-[#4285F4]/15 hover:bg-[#4285F4]/25 text-[#4285F4]
                                font-medium rounded-xl text-sm transition-colors disabled:opacity-60"
                   >
                     {gfSyncing
