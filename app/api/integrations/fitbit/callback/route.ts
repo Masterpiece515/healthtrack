@@ -4,18 +4,21 @@ import { db } from '@/lib/db';
 import { integrations } from '@/lib/db/schema';
 
 export async function GET(req: NextRequest) {
+  // Используем AUTH_URL из env, чтобы не получить 0.0.0.0:PORT на Railway
+  const base = (process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? '').replace(/\/$/, '')
+    || req.nextUrl.origin;
+
   try {
     const userId = await requireUserId();
     const code   = req.nextUrl.searchParams.get('code');
     const error  = req.nextUrl.searchParams.get('error');
 
     if (error || !code) {
-      return NextResponse.redirect(new URL('/settings?integration=error', req.nextUrl.origin));
+      return NextResponse.redirect(`${base}/settings?integration=error`);
     }
 
     const clientId     = process.env.GOOGLE_CLIENT_ID!;
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET!;
-    const base         = process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? req.nextUrl.origin;
     const redirectUri  = `${base}/api/integrations/fitbit/callback`;
 
     const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
@@ -39,7 +42,7 @@ export async function GET(req: NextRequest) {
 
     if (!tokens.access_token) {
       console.error('[health/callback] token error:', tokens);
-      return NextResponse.redirect(new URL('/settings?integration=error', req.nextUrl.origin));
+      return NextResponse.redirect(`${base}/settings?integration=error`);
     }
 
     const expiry = new Date(Date.now() + (tokens.expires_in ?? 3600) * 1000).toISOString();
@@ -60,10 +63,10 @@ export async function GET(req: NextRequest) {
       },
     }).run();
 
-    return NextResponse.redirect(new URL('/settings?integration=success', req.nextUrl.origin));
+    return NextResponse.redirect(`${base}/settings?integration=success`);
   } catch (err) {
-    if (err instanceof AuthError) return NextResponse.redirect(new URL('/login', req.nextUrl.origin));
+    if (err instanceof AuthError) return NextResponse.redirect(`${base}/login`);
     console.error('[health/callback]', err);
-    return NextResponse.redirect(new URL('/settings?integration=error', req.nextUrl.origin));
+    return NextResponse.redirect(`${base}/settings?integration=error`);
   }
 }
