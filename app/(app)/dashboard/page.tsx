@@ -184,7 +184,7 @@ export default function DashboardPage() {
           transition={{ duration: 0.6 }}
           className="lg:col-span-1"
         >
-          <div className="bg-gradient-to-br from-white to-[#f5f8ff] rounded-3xl p-8
+          <div className="bg-gradient-to-br from-white to-[#f5f8ff] rounded-3xl p-5 sm:p-8
                           shadow-xl border border-[#6b8dd6]/10 relative overflow-hidden h-full">
             <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br
                             from-[#6b8dd6]/10 to-transparent rounded-full blur-3xl" />
@@ -203,7 +203,7 @@ export default function DashboardPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.2 }}
-              className="mt-8 grid grid-cols-2 gap-3 relative z-10"
+              className="mt-5 sm:mt-8 grid grid-cols-2 gap-3 relative z-10"
             >
               <button className="px-4 py-3 bg-[#6b8dd6]/10 hover:bg-[#6b8dd6]/20
                                  rounded-xl text-sm font-medium text-[#6b8dd6] transition-all">
@@ -234,7 +234,7 @@ export default function DashboardPage() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5, delay: 0.6 }}
-        className="bg-white rounded-3xl p-8 shadow-sm border border-[#6b8dd6]/10"
+        className="bg-white rounded-3xl p-5 sm:p-8 shadow-sm border border-[#6b8dd6]/10"
       >
         {/* Фоновое свечение */}
 
@@ -368,12 +368,12 @@ export default function DashboardPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: stat.delay }}
-              className={`bg-gradient-to-br ${stat.gradient} rounded-2xl p-6 border ${stat.border}`}
+              className={`bg-gradient-to-br ${stat.gradient} rounded-2xl p-4 sm:p-6 border ${stat.border}`}
             >
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <p className="text-sm text-[#4a5a8a] mb-1">{stat.label}</p>
-                  <p className="text-3xl font-bold text-[#1a1e5e]">{stat.value}</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-[#1a1e5e]">{stat.value}</p>
                 </div>
                 <div className={`w-12 h-12 ${stat.iconBg} rounded-xl flex items-center justify-center`}>
                   <Icon className={`w-6 h-6 ${stat.iconColor}`} />

@@ -89,7 +89,7 @@ export function AddMetricForm({ onSuccess }: AddMetricFormProps) {
               animate={{ opacity: 1, y: 0,  scale: 1    }}
               exit={{    opacity: 0, y: 60, scale: 0.96 }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-3xl shadow-2xl z-50 overflow-hidden"
+              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-lg bg-white rounded-3xl shadow-2xl z-50 overflow-hidden"
             >
               <div className="flex items-center justify-between p-6 border-b border-[#6b8dd6]/10">
                 <div>
@@ -108,7 +108,7 @@ export function AddMetricForm({ onSuccess }: AddMetricFormProps) {
                     onChange={(e) => handleChange('date', e.target.value)} required className={inputClass} />
                 </Field>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <Field label="Шаги" required>
                     <input type="number" min={0} max={100000} placeholder="10 000"
                       value={form.steps || ''} onChange={(e) => handleChange('steps', e.target.value)} required className={inputClass} />
@@ -119,7 +119,7 @@ export function AddMetricForm({ onSuccess }: AddMetricFormProps) {
                   </Field>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <Field label="Пульс (уд/мин)" required>
                     <input type="number" min={30} max={250} placeholder="70"
                       value={form.heartRate || ''} onChange={(e) => handleChange('heartRate', e.target.value)} required className={inputClass} />

@@ -197,7 +197,7 @@ export function Sidebar() {
             <motion.div
               initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }}
               transition={{ type: 'spring', stiffness: 300, damping: 35 }}
-              className="md:hidden fixed left-0 top-0 bottom-0 w-72 z-50 bg-white border-r border-[#6b8dd6]/15 flex flex-col shadow-xl"
+              className="md:hidden fixed left-0 top-0 bottom-0 w-72 max-w-[85vw] z-50 bg-white border-r border-[#6b8dd6]/15 flex flex-col shadow-xl"
             >
               <div className="p-5 border-b border-[#6b8dd6]/10 flex items-center justify-between">
                 <div className="flex items-center gap-3">

@@ -10,8 +10,8 @@ const navLinks = [
 export function Footer() {
   return (
     <footer style={{ background: '#6b8dd6' }}>
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 py-4">
-        <div className="flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 py-5 sm:py-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
           {/* Логотип */}
           <Link href="/" className="flex items-center gap-2">
@@ -28,8 +28,8 @@ export function Footer() {
             </div>
           </Link>
 
-          {/* Ссылки */}
-          <div className="flex items-center gap-10">
+          {/* Ссылки — скрыты на мобиле, видны на sm+ */}
+          <div className="hidden sm:flex items-center gap-6">
             {navLinks.map(({ href, label }) => (
               <a
                 key={href}
@@ -42,10 +42,8 @@ export function Footer() {
           </div>
 
           {/* Копирайт */}
-          <p className="text-white/60 text-xs sm:text-sm text-right">
-            {new Date().getFullYear()} HealthTrack
-            <span className="hidden sm:inline"> · </span>
-            <br className="sm:hidden" />
+          <p className="text-white/60 text-xs sm:text-sm">
+            {new Date().getFullYear()} HealthTrack ·{' '}
             <a
               href="https://www.flaticon.com/"
               target="_blank"

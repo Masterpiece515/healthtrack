@@ -96,7 +96,7 @@ export default function ProfilePage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Карточка пользователя */}
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-          className="bg-[#1a1e5e] rounded-3xl p-8 text-center shadow-xl relative overflow-hidden">
+          className="bg-[#1a1e5e] rounded-3xl p-5 sm:p-8 text-center shadow-xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-40 h-40 bg-[#6b8dd6]/10 rounded-full blur-2xl" />
           <div className="relative z-10">
             <div className="w-24 h-24 bg-gradient-to-br from-[#6b8dd6] to-[#93b4e8] rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl">
@@ -130,7 +130,7 @@ export default function ProfilePage() {
             return (
               <motion.div key={s.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.08 }}
-                className="bg-white rounded-2xl p-6 shadow-lg">
+                className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg">
                 <div className="flex items-start justify-between mb-4">
                   <p className="text-sm text-[#4a5a8a] font-medium">{s.label}</p>
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center"
