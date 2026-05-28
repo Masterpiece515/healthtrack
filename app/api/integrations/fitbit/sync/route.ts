@@ -1,6 +1,6 @@
 import { requireUserId, AuthError } from '@/lib/auth-utils';
 import { apiError, apiOk } from '@/lib/api-response';
-import { db } from '@/lib/db';
+import { db, persistDb } from '@/lib/db';
 import { integrations } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { createEntry } from '@/lib/services/health.service';
@@ -37,6 +37,7 @@ async function refreshToken(userId: string, row: IntRow): Promise<string | null>
     target: integrations.userId,
     set: { googleAccessToken: t.access_token, googleTokenExpiry: expiry, updatedAt: new Date().toISOString() },
   }).run();
+  persistDb();
 
   return t.access_token;
 }

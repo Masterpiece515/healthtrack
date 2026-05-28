@@ -55,6 +55,7 @@ import {
   BsX,
   BsXCircle,
   BsLightning,
+  BsHouseDoor,
 } from 'react-icons/bs';
 import { FaBrain, FaWeightHanging } from 'react-icons/fa';
 import { MdLinkOff } from 'react-icons/md';
@@ -117,6 +118,7 @@ export const WifiOff = BsWifiOff;
 export const X = BsX;
 export const XCircle = BsXCircle;
 export const Zap = BsLightning;
+export const Home = BsHouseDoor;
 
 export function Loader2({ className, style, ...props }: IconProps) {
   return (

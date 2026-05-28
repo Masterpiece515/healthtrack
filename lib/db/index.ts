@@ -110,6 +110,19 @@ function wrapSqliteWithPersist(sqlite: Database): Database {
     return result;
   };
 
+  // Drizzle ORM uses sqlite.prepare().run() — wrap Statement.run too
+  const originalPrepare = sqlite.prepare.bind(sqlite);
+  sqlite.prepare = (...args: Parameters<Database['prepare']>) => {
+    const stmt = originalPrepare(...args);
+    const origStmtRun = stmt.run.bind(stmt);
+    stmt.run = (...a: Parameters<typeof stmt.run>) => {
+      const r = origStmtRun(...a);
+      persist();
+      return r;
+    };
+    return stmt;
+  };
+
   return sqlite;
 }
 
@@ -153,6 +166,12 @@ function getInitPromise() {
     });
   }
   return global.__dbInit;
+}
+
+/** Явное сохранение БД на диск — вызывать после критических записей. */
+export function persistDb() {
+  const bundle = global.__dbBundle;
+  if (bundle) persistSqlite(bundle.sqlite);
 }
 
 /** Инициализация БД (вызывается из instrumentation.ts при старте сервера). */

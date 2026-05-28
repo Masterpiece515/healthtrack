@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireUserId, AuthError } from '@/lib/auth-utils';
-import { db } from '@/lib/db';
+import { db, persistDb } from '@/lib/db';
 import { integrations } from '@/lib/db/schema';
 
 export async function GET(req: NextRequest) {
@@ -62,6 +62,7 @@ export async function GET(req: NextRequest) {
         updatedAt:          new Date().toISOString(),
       },
     }).run();
+    persistDb();
 
     return NextResponse.redirect(`${base}/settings?integration=success`);
   } catch (err) {

@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSession, signOut } from 'next-auth/react';
 import {
   Activity, TrendingUp, Heart, User,
-  Settings, LogOut, Menu, X, ClipboardList, ShieldCheck,
+  Settings, LogOut, Menu, X, ClipboardList, ShieldCheck, Home,
 } from '@/components/icons';
 
 const navItems = [
@@ -65,6 +65,16 @@ function NavContent({ collapsed, onLinkClick }: { collapsed: boolean; onLinkClic
       </nav>
 
       <div className="p-4 border-t border-[#6b8dd6]/10 space-y-1">
+        <Link href="/" onClick={onLinkClick}>
+          <motion.div
+            whileHover={{ x: 3 }}
+            className="px-4 py-3 rounded-xl flex items-center gap-3 transition-colors text-[#4a5a8a] hover:bg-[#eef2ff] hover:text-[#1a1e5e]"
+          >
+            <Home className="w-5 h-5 flex-shrink-0" />
+            {!collapsed && <span className="whitespace-nowrap font-medium">На главную</span>}
+          </motion.div>
+        </Link>
+
         <Link href="/settings" onClick={onLinkClick}>
           <motion.div
             whileHover={{ x: 3 }}
