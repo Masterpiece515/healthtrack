@@ -85,13 +85,21 @@ export default function SettingsPage() {
 
   useEffect(() => {
     fetch('/api/settings')
-      .then(r => r.json())
+      .then(async r => {
+        const d = await r.json();
+        if (!r.ok) throw Object.assign(new Error(d.error ?? ''), { status: r.status });
+        return d;
+      })
       .then(d => {
         setUser(d.user);
         setName(d.user.name);
         setEmail(d.user.email);
       })
-      .catch(() => toast('Ошибка загрузки настроек', 'error'))
+      .catch((e: unknown) => {
+        // 401 сразу после OAuth-редиректа — сессия ещё устанавливается, не показываем ошибку
+        const status = (e as { status?: number })?.status;
+        if (status !== 401) toast('Ошибка загрузки настроек', 'error');
+      })
       .finally(() => setLoading(false));
 
     checkFitbit();
@@ -99,7 +107,7 @@ export default function SettingsPage() {
     // Подключение только сохраняет токены — данные подтягиваются отдельным POST /sync
     const params = new URLSearchParams(window.location.search);
     if (params.get('integration') === 'success') {
-      toast('Fitbit подключён, загружаем данные…', 'success');
+      toast('Google Health подключён, загружаем данные…', 'success');
       setGfConnected(true);
       window.history.replaceState({}, '', '/settings');
       fetch('/api/integrations/fitbit/sync', { method: 'POST' })
