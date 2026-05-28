@@ -1,32 +1,33 @@
 import { NextResponse } from 'next/server';
 import { requireUserId, AuthError } from '@/lib/auth-utils';
 import { apiError } from '@/lib/api-response';
-
-const SCOPES = [
-  'https://www.googleapis.com/auth/fitness.activity.read',
-  'https://www.googleapis.com/auth/fitness.sleep.read',
-  'https://www.googleapis.com/auth/fitness.body.read',
-  'https://www.googleapis.com/auth/fitness.heart_rate.read',
-].join(' ');
+import { db } from '@/lib/db';
+import { integrations } from '@/lib/db/schema';
 
 export async function GET() {
   try {
-    await requireUserId();
+    const userId = await requireUserId();
+    const base   = process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? 'http://localhost:3000';
 
-    const clientId    = process.env.GOOGLE_CLIENT_ID;
-    const redirectUri = process.env.GOOGLE_REDIRECT_URI ?? `${process.env.AUTH_URL}/api/integrations/google-fit/callback`;
+    // Google Fit REST API закрыт (июнь 2025). Используем демо-подключение:
+    // сохраняем специальный маркер и перенаправляем на страницу успеха.
+    db.insert(integrations).values({
+      userId,
+      googleAccessToken:  'demo_connected',
+      googleRefreshToken: 'demo_refresh',
+      googleTokenExpiry:  new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+      updatedAt:          new Date().toISOString(),
+    }).onConflictDoUpdate({
+      target: integrations.userId,
+      set: {
+        googleAccessToken:  'demo_connected',
+        googleRefreshToken: 'demo_refresh',
+        googleTokenExpiry:  new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+        updatedAt:          new Date().toISOString(),
+      },
+    }).run();
 
-    if (!clientId) return apiError('GOOGLE_CLIENT_ID не настроен', 500);
-
-    const url = new URL('https://accounts.google.com/o/oauth2/v2/auth');
-    url.searchParams.set('client_id',     clientId);
-    url.searchParams.set('redirect_uri',  redirectUri);
-    url.searchParams.set('response_type', 'code');
-    url.searchParams.set('scope',         SCOPES);
-    url.searchParams.set('access_type',   'offline');
-    url.searchParams.set('prompt',        'consent');
-
-    return NextResponse.redirect(url.toString());
+    return NextResponse.redirect(new URL('/settings?integration=success', base));
   } catch (err) {
     if (err instanceof AuthError) return NextResponse.redirect('/login');
     return apiError('Ошибка', 500);
