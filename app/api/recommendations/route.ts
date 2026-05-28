@@ -23,10 +23,23 @@ function parseRecs(content: string): AIRecommendation[] {
     .replace(/```\s*/g, '')
     .trim();
 
+  // Пробуем найти JSON-массив в любом месте ответа
   const match = clean.match(/\[[\s\S]*\]/);
-  if (!match) throw new Error('No JSON array found');
+  if (!match) {
+    // Fallback: пробуем обернуть если модель вернула объект вместо массива
+    const objMatch = clean.match(/\{[\s\S]*\}/);
+    if (objMatch) {
+      const parsed = JSON.parse(`[${objMatch[0]}]`) as Record<string, unknown>[];
+      return parseItems(parsed);
+    }
+    throw new Error('No JSON array found');
+  }
 
   const parsed = JSON.parse(match[0]) as Record<string, unknown>[];
+  return parseItems(parsed);
+}
+
+function parseItems(parsed: Record<string, unknown>[]): AIRecommendation[] {
   return parsed.slice(0, 5).map((item, i) => ({
     id:          `ai-${i + 1}`,
     title:       String(item.title       ?? '').slice(0, 100),
