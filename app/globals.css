@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+/* ===== HealthTrack — стилистика лендинга ===== */
+:root {
+  --background: #f5f8ff;
+  --foreground: #1a1e5e;
+  --card: #ffffff;
+  --card-foreground: #1a1e5e;
+  --primary: #6b8dd6;
+  --primary-foreground: #ffffff;
+  --secondary: #eef2ff;
+  --secondary-foreground: #1a1e5e;
+  --muted: #c5d3f0;
+  --muted-foreground: #4a5a8a;
+  --accent: #6b8dd6;
+  --accent-foreground: #ffffff;
+  --accent-blue: #6b8dd6;
+  --accent-light: #eef2ff;
+  --border: rgba(107, 141, 214, 0.18);
+  --ring: #6b8dd6;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1a1e5e;
+  --sidebar-accent: #eef2ff;
+  --sidebar-border: rgba(107, 141, 214, 0.15);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-light: var(--accent-light);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-border: var(--sidebar-border);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+}

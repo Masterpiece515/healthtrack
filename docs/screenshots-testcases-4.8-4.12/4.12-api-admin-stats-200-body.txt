@@ -1,0 +1,1 @@
+{"totalUsers":6,"totalEntries":14,"newToday":3,"newThisWeek":4,"activeUsers":3,"adminCount":2}
