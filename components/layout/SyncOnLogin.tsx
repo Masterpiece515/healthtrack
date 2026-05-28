@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useToast } from '@/lib/toast-context';
 
 /**
- * Запускает фоновую синхронизацию Google Fit один раз за браузерную сессию
+ * Запускает фоновую синхронизацию Fitbit один раз за браузерную сессию
  * сразу после того, как пользователь вошёл в аккаунт.
  */
 export function SyncOnLogin() {
@@ -28,18 +28,18 @@ export function SyncOnLogin() {
 
     async function run() {
       try {
-        // Проверяем подключён ли Google Fit
-        const checkRes = await fetch('/api/integrations/google-fit/sync');
+        // Проверяем подключён ли Fitbit
+        const checkRes = await fetch('/api/integrations/fitbit/sync');
         if (!checkRes.ok) return;
         const check = await checkRes.json() as { connected?: boolean };
         if (!check.connected) return;
 
         // Запускаем синхронизацию
-        const syncRes = await fetch('/api/integrations/google-fit/sync', { method: 'POST' });
+        const syncRes = await fetch('/api/integrations/fitbit/sync', { method: 'POST' });
         const data = await syncRes.json() as { imported?: number; message?: string; error?: string };
 
         if (syncRes.ok && data.imported != null && data.imported > 0) {
-          toast(`Google Fit: синхронизировано ${data.imported} записей`, 'success');
+          toast(`Fitbit: синхронизировано ${data.imported} записей`, 'success');
         }
       } catch {
         // Фоновая синхронизация — не показываем ошибку пользователю

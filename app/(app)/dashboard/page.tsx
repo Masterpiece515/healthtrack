@@ -91,7 +91,7 @@ export default function DashboardPage() {
 
   // ── Построение карточек метрик из API-данных ──────────────────────────────
   const summary      = healthData?.summary;
-  const hasGoogleFit = healthData?.hasGoogleFit ?? false;
+  const hasFitbit = healthData?.hasFitbit ?? false;
   const weekTrends   = useMemo(
     () => computeWeekTrends(healthData?.entries ?? []),
     [healthData?.entries],
@@ -104,8 +104,8 @@ export default function DashboardPage() {
     { title: 'Вес',   value: summary ? String(summary.latestWeight) : '—',             unit: 'кг',      icon: Weight,     trend: weekTrends.weight,  progress: undefined,                                                              color: '#a78bfa', delay: 0.4, always: true },
   ];
 
-  const statCards = allStatCards.filter(c => c.always || hasGoogleFit);
-  const cards = summary ? statCards : STAT_DEFAULTS.filter(c => c.title !== 'Пульс' || hasGoogleFit);
+  const statCards = allStatCards.filter(c => c.always || hasFitbit);
+  const cards = summary ? statCards : STAT_DEFAULTS.filter(c => c.title !== 'Пульс' || hasFitbit);
 
   // ── Вызывается после успешного сохранения новой записи ────────────────────
   const handleEntryAdded = (newScore: number) => {
@@ -195,7 +195,7 @@ export default function DashboardPage() {
                 delay={0.2}
                 avgSteps={summary?.avgSteps}
                 avgSleep={summary?.avgSleep}
-                avgHeartRate={hasGoogleFit ? summary?.avgHeartRate : undefined}
+                avgHeartRate={hasFitbit ? summary?.avgHeartRate : undefined}
               />
             </div>
 

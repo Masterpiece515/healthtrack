@@ -16,8 +16,8 @@ export async function GET(): Promise<NextResponse<HealthListResponse | ApiError>
     const userId  = await requireUserId();
     const entries = getUserEntries(userId);
     const integration = db.select().from(integrations).where(eq(integrations.userId, userId)).get();
-    const hasGoogleFit = !!(integration?.googleAccessToken);
-    return apiOk({ entries, summary: buildSummary(entries), hasGoogleFit });
+    const hasFitbit = !!(integration?.googleAccessToken);
+    return apiOk({ entries, summary: buildSummary(entries), hasFitbit });
   } catch (err: unknown) {
     if (err && typeof err === 'object' && 'status' in err && (err as { status: number }).status === 401) {
       return apiError('Необходима авторизация', 401) as NextResponse<ApiError>;

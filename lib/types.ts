@@ -37,7 +37,7 @@ export interface HealthListResponse {
     latestWeight: number;
     healthScore: number;
   };
-  hasGoogleFit: boolean;
+  hasFitbit: boolean;
 }
 
 /** Ответ GET /api/recommendations */

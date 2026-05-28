@@ -54,7 +54,7 @@ export default function SettingsPage() {
   const [csvLoading,   setCsvLoading]   = useState(false);
   const [csvResult,    setCsvResult]    = useState<{ imported: number; skipped: number } | null>(null);
 
-  // Google Fit
+  // Fitbit
   const [gfConnected,  setGfConnected]  = useState(false);
   const [gfSyncing,    setGfSyncing]    = useState(false);
   const [gfResult,     setGfResult]     = useState('');
@@ -75,9 +75,9 @@ export default function SettingsPage() {
   const [confirmDelete, setConfirmDelete] = useState('');
   const [deleting,      setDeleting]      = useState(false);
 
-  const checkGoogleFit = useCallback(async () => {
+  const checkFitbit = useCallback(async () => {
     try {
-      const res  = await fetch('/api/integrations/google-fit/sync');
+      const res  = await fetch('/api/integrations/fitbit/sync');
       const data = await res.json();
       setGfConnected(data.connected ?? false);
     } catch { /* ignore */ }
@@ -94,30 +94,30 @@ export default function SettingsPage() {
       .catch(() => toast('Ошибка загрузки настроек', 'error'))
       .finally(() => setLoading(false));
 
-    checkGoogleFit();
+    checkFitbit();
 
     // Подключение только сохраняет токены — данные подтягиваются отдельным POST /sync
     const params = new URLSearchParams(window.location.search);
     if (params.get('integration') === 'success') {
-      toast('Google Fit подключён, загружаем данные…', 'success');
+      toast('Fitbit подключён, загружаем данные…', 'success');
       setGfConnected(true);
       window.history.replaceState({}, '', '/settings');
-      fetch('/api/integrations/google-fit/sync', { method: 'POST' })
+      fetch('/api/integrations/fitbit/sync', { method: 'POST' })
         .then(async (res) => {
           const data = await res.json();
           if (!res.ok) {
-            toast(data.error ?? 'Не удалось загрузить данные из Google Fit', 'error');
+            toast(data.error ?? 'Не удалось загрузить данные из Fitbit', 'error');
             return;
           }
           setGfResult(data.message ?? '');
           toast(data.message ?? 'Данные синхронизированы', 'success');
         })
-        .catch(() => toast('Ошибка синхронизации Google Fit', 'error'));
+        .catch(() => toast('Ошибка синхронизации Fitbit', 'error'));
     } else if (params.get('integration') === 'error') {
-      toast('Ошибка подключения Google Fit', 'error');
+      toast('Ошибка подключения Fitbit', 'error');
       window.history.replaceState({}, '', '/settings');
     }
-  }, [toast, checkGoogleFit]);
+  }, [toast, checkFitbit]);
 
   const handleCsvImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -140,11 +140,11 @@ export default function SettingsPage() {
     }
   };
 
-  const syncGoogleFit = async () => {
+  const syncFitbit = async () => {
     setGfSyncing(true);
     setGfResult('');
     try {
-      const res  = await fetch('/api/integrations/google-fit/sync', { method: 'POST' });
+      const res  = await fetch('/api/integrations/fitbit/sync', { method: 'POST' });
       const data = await res.json();
       if (!res.ok) { toast(data.error ?? 'Ошибка синхронизации', 'error'); return; }
       setGfResult(data.message ?? '');
@@ -389,11 +389,11 @@ export default function SettingsPage() {
 
           <div className="border-t border-[#c5d3f0]/20" />
 
-          {/* Google Fit */}
+          {/* Fitbit */}
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <Activity className="w-5 h-5 text-[#4285F4]" />
-              <h3 className="text-sm font-semibold text-[#1a1e5e]">Google Fit</h3>
+              <Activity className="w-5 h-5 text-[#00B0B9]" />
+              <h3 className="text-sm font-semibold text-[#1a1e5e]">Fitbit</h3>
               {gfConnected && (
                 <span className="px-2 py-0.5 bg-green-500/15 text-green-600 text-xs rounded-full font-medium">
                   Подключён
@@ -401,31 +401,34 @@ export default function SettingsPage() {
               )}
             </div>
             <p className="text-xs text-[#4a5a8a] mb-3">
-              Синхронизирует шаги, сон, пульс и вес из Google Fit за последние 30 дней.
-              В Google Cloud нужны Fitness API и OAuth scopes fitness.*.read (см. .env.local).
+              Синхронизирует шаги, сон, пульс и вес из Fitbit за последние 30 дней.
+              Нужны переменные <span className="font-mono">FITBIT_CLIENT_ID</span> и{' '}
+              <span className="font-mono">FITBIT_CLIENT_SECRET</span> из{' '}
+              <a href="https://dev.fitbit.com/apps" target="_blank" rel="noopener noreferrer"
+                 className="text-[#00B0B9] underline">dev.fitbit.com</a>.
             </p>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               {!gfConnected ? (
                 <motion.a
-                  href="/api/integrations/google-fit/connect"
+                  href="/api/integrations/fitbit/connect"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   className="flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5
-                             bg-[#4285F4]/15 hover:bg-[#4285F4]/25 text-[#4285F4]
+                             bg-[#00B0B9]/15 hover:bg-[#00B0B9]/25 text-[#00B0B9]
                              font-medium rounded-xl text-sm transition-colors"
                 >
                   <Link2 className="w-4 h-4" />
-                  Подключить Google Fit
+                  Подключить Fitbit
                 </motion.a>
               ) : (
                 <>
                   <motion.button
-                    onClick={syncGoogleFit}
+                    onClick={syncFitbit}
                     disabled={gfSyncing}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     className="flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5
-                               bg-[#4285F4]/15 hover:bg-[#4285F4]/25 text-[#4285F4]
+                               bg-[#00B0B9]/15 hover:bg-[#00B0B9]/25 text-[#00B0B9]
                                font-medium rounded-xl text-sm transition-colors disabled:opacity-60"
                   >
                     {gfSyncing
@@ -435,7 +438,7 @@ export default function SettingsPage() {
                     {gfSyncing ? 'Синхронизация...' : 'Синхронизировать'}
                   </motion.button>
                   <motion.a
-                    href="/api/integrations/google-fit/connect"
+                    href="/api/integrations/fitbit/connect"
                     whileHover={{ scale: 1.02 }}
                     className="flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5
                                bg-[#c5d3f0]/15 hover:bg-[#c5d3f0]/25 text-[#4a5a8a]
