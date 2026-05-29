@@ -62,12 +62,12 @@ export function ScrollSteps() {
               key={i}
               initial={false}
               animate={{
-                opacity: appear ? 0.45 : 0,
+                opacity: appear ? 1 : 0,
                 x:       appear ? 0    : isLeft ? -14 : 14,
                 scale:   appear ? 1    : 0.6,
               }}
               transition={{ type: 'spring', stiffness: 260, damping: 22, delay: appear ? 0 : 0 }}
-              style={{ color: '#6b8dd6', marginLeft: isLeft ? 0 : 10 }}
+              style={{ color: '#3a6abf', marginLeft: isLeft ? 0 : 10 }}
             >
               <FootSvg flip={!isLeft} />
             </motion.div>
