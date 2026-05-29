@@ -60,6 +60,11 @@ export async function changePassword(
   const user = findUserById(userId);
   if (!user) throw new Error('USER_NOT_FOUND');
 
+  // Аккаунты через Google не имеют пароля — нельзя верифицировать текущий
+  if (!user.passwordHash || !user.passwordHash.startsWith('$2')) {
+    throw new Error('NO_PASSWORD');
+  }
+
   const valid = await verifyPassword(user, currentPassword);
   if (!valid) throw new Error('WRONG_PASSWORD');
 

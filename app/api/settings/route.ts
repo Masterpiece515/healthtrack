@@ -51,6 +51,9 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
         if (e instanceof Error && e.message === 'WRONG_PASSWORD') {
           return apiError('Неверный текущий пароль', 422);
         }
+        if (e instanceof Error && e.message === 'NO_PASSWORD') {
+          return apiError('Аккаунты Google не поддерживают смену пароля', 422);
+        }
         throw e;
       }
     }
