@@ -19,7 +19,7 @@ export function Hero() {
               transition={{ duration: 0.5 }}
               className="text-[#6b8dd6] text-sm font-medium mb-4"
             >
-              Контролируй здоровье с умом
+              Следи за здоровьем — просто и понятно
             </motion.p>
 
             <motion.h1
@@ -32,9 +32,9 @@ export function Hero() {
                 color: '#1a1e5e',
               }}
             >
-              HEALTH TRACK -{' '}
-              <span className="text-[#1a1e5e]">ЛУЧШИЙ ВЫБОР</span>{' '}
-              <span className="text-[#6b8dd6]">ДЛЯ ЗАБОТЫ О СВОЕМ ЗДОРОВЬЕ</span>
+              HEALTH TRACK —{' '}
+              <span className="text-[#1a1e5e]">СЛЕДИ ЗА ЗДОРОВЬЕМ</span>{' '}
+              <span className="text-[#6b8dd6]">ЛЕГКО И БЕЗ ЛИШНИХ СЛОЖНОСТЕЙ</span>
             </motion.h1>
 
             <motion.p
@@ -43,9 +43,9 @@ export function Hero() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-[#4a5a8a] text-base md:text-lg leading-relaxed mb-10 max-w-lg"
             >
-              Отслеживай шаги, сон, пульс и вес в одном месте.
-              Персональный AI‑ассистент анализирует твои данные
-              и даёт конкретные рекомендации каждый день.
+              Записывай шаги, сон, пульс и вес — всё в одном месте.
+              AI каждый день смотрит на твои данные
+              и говорит, что можно улучшить.
             </motion.p>
 
             <motion.div

@@ -220,12 +220,12 @@ export function DashboardPreview() {
               Интерфейс
             </span>
             <h2 className="text-3xl md:text-4xl font-bold text-[#1a1e5e] mb-4 leading-tight">
-              Интерфейс,{' '}
-              <span className="text-[#6b8dd6]">который понятен</span>
+              Всё видно{' '}
+              <span className="text-[#6b8dd6]">с первого взгляда</span>
             </h2>
             <p className="text-[#4a5a8a] text-base leading-relaxed mb-8">
-              Чистый и информативный интерфейс без лишнего шума.
-              Всё важное — с первого взгляда. Нет необходимости в инструкции.
+              Понятный дашборд без лишнего.
+              Открыл — и сразу видишь, как ты себя чувствуешь.
             </p>
             <Link href="/dashboard" className="inline-flex items-center gap-2 text-[#6b8dd6] font-semibold hover:text-[#1a1e5e] transition-colors">
               Узнать больше <ArrowRight className="w-4 h-4" />
