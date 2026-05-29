@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import {
   User, Lock, Trash2, LogOut, Check, Loader2,
   ShieldAlert, Eye, EyeOff, Upload, RefreshCw,
@@ -44,6 +44,7 @@ function Card({ title, icon: Icon, children }: Section) {
 }
 
 export default function SettingsPage() {
+  const { update: updateSession } = useSession();
   const { toast } = useToast();
 
   const [user,    setUser]    = useState<UserData | null>(null);
@@ -174,8 +175,12 @@ export default function SettingsPage() {
       });
       const data = await res.json();
       if (!res.ok) { toast(data.error ?? 'Ошибка', 'error'); return; }
-      toast('Профиль обновлён', 'success');
       setUser(prev => prev ? { ...prev, name, email } : prev);
+      // Обновляем JWT-сессию, чтобы sidebar и профиль сразу показали новое имя
+      await updateSession();
+      toast('Профиль обновлён', 'success');
+    } catch {
+      toast('Ошибка сохранения', 'error');
     } finally {
       setSavingProfile(false);
     }
@@ -196,6 +201,8 @@ export default function SettingsPage() {
       toast('Пароль изменён', 'success');
       setCurrentPw('');
       setNewPw('');
+    } catch {
+      toast('Ошибка смены пароля', 'error');
     } finally {
       setSavingPw(false);
     }

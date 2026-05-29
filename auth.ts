@@ -86,17 +86,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user && 'role' in user && (user as { role?: string }).role) {
         token.role = (user as { role: string }).role;
       }
-      // Роль всегда из БД (OAuth не передаёт role; после ручного UPDATE сессия обновится)
+      // Имя, email и роль — всегда из БД (OAuth не передаёт role; после UPDATE сессия обновится)
       if (token.id) {
-        const row = db.select({ role: users.role }).from(users).where(eq(users.id, String(token.id))).get();
-        if (row) token.role = row.role;
+        const row = db
+          .select({ role: users.role, name: users.name, email: users.email })
+          .from(users).where(eq(users.id, String(token.id))).get();
+        if (row) {
+          token.role  = row.role;
+          token.name  = row.name;
+          token.email = row.email;
+        }
       }
       if (!token.role) token.role = 'user';
       return token;
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     session({ session, token }: { session: any; token: any }) {
-      if (token.id) session.user.id = token.id as string;
+      if (token.id)    session.user.id    = token.id    as string;
+      if (token.name)  session.user.name  = token.name  as string;
+      if (token.email) session.user.email = token.email as string;
       session.user.role = (token.role as string) ?? 'user';
       return session;
     },
