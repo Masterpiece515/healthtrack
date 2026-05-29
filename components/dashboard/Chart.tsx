@@ -221,21 +221,17 @@ export function Chart({ entries }: { entries: HealthEntry[] }) {
                       strokeOpacity={0.5}
                       label={{ value: metric.goalLabel, position: 'insideTopRight', fontSize: 10, fill: metric.color }} />
                   )}
-                  <Bar dataKey={activeKey} fill={`url(#bar-${activeKey})`}
-                    radius={[4, 4, 0, 0]} name={metric.label}
-                    // Подсветка баров выше цели
-                    {...(metric.goal ? {
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      fill: undefined, shape: (props: any) => {
-                        const { x, y, width, height, value } = props;
-                        const aboveGoal = metric.goal && value >= metric.goal;
-                        return (
-                          <rect x={x} y={y} width={width} height={height}
-                            fill={aboveGoal ? `${metric.color}` : `${metric.color}90`}
-                            rx={4} ry={4} />
-                        );
-                      }
-                    } : {})}
+                  <Bar dataKey={activeKey} radius={[4, 4, 0, 0]} name={metric.label}
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    shape={(props: any) => {
+                      const { x, y, width, height, value } = props;
+                      const aboveGoal = metric.goal ? value >= metric.goal : true;
+                      return (
+                        <rect x={x} y={y} width={width} height={height}
+                          fill={aboveGoal ? metric.color : `${metric.color}80`}
+                          rx={4} ry={4} />
+                      );
+                    }}
                   />
                 </BarChart>
               ) : (
