@@ -100,9 +100,11 @@ export function Features() {
 
           {/* Круг 1 — самый большой, по часовой */}
           <div
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+            className="pointer-events-none"
             style={{
+              position: 'absolute', left: '50%', top: '50%',
               width: '860px', height: '860px',
+              marginLeft: '-430px', marginTop: '-430px',
               border: '2px dashed #6091F8',
               borderRadius: '50%', zIndex: 0,
               animation: 'spin-cw 32s linear infinite',
@@ -111,9 +113,11 @@ export function Features() {
 
           {/* Круг 2 — средний, против часовой */}
           <div
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+            className="pointer-events-none"
             style={{
+              position: 'absolute', left: '50%', top: '50%',
               width: '680px', height: '680px',
+              marginLeft: '-340px', marginTop: '-340px',
               border: '2px dashed #6091F8',
               borderRadius: '50%', zIndex: 0,
               animation: 'spin-ccw 24s linear infinite',
@@ -122,9 +126,11 @@ export function Features() {
 
           {/* Круг 3 — внутренний, по часовой медленно */}
           <div
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+            className="pointer-events-none"
             style={{
+              position: 'absolute', left: '50%', top: '50%',
               width: '500px', height: '500px',
+              marginLeft: '-250px', marginTop: '-250px',
               border: '1.5px dashed #6091F8',
               borderRadius: '50%', zIndex: 0,
               animation: 'spin-cw 18s linear infinite',
@@ -132,8 +138,8 @@ export function Features() {
           />
 
           <style>{`
-            @keyframes spin-cw  { from { transform: translate(-50%,-50%) rotate(0deg);   } to { transform: translate(-50%,-50%) rotate(360deg);  } }
-            @keyframes spin-ccw { from { transform: translate(-50%,-50%) rotate(0deg);   } to { transform: translate(-50%,-50%) rotate(-360deg); } }
+            @keyframes spin-cw  { from { transform: rotate(0deg);   } to { transform: rotate(360deg);  } }
+            @keyframes spin-ccw { from { transform: rotate(0deg);   } to { transform: rotate(-360deg); } }
           `}</style>
 
           {/* Центральный заголовок */}
