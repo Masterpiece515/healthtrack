@@ -67,15 +67,21 @@ export default function AnalyticsPage() {
             >
               <h3 className="text-lg font-bold text-[#1a1e5e] mb-1">Шаги за неделю</h3>
               <p className="text-sm text-[#4a5a8a] mb-6">Ежедневная активность</p>
-              <ResponsiveContainer width="100%" height={240}>
-                <BarChart data={data}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#eef2ff" opacity={0.4} vertical={false} />
-                  <XAxis dataKey="day" stroke="#4a5a8a" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#4a5a8a" fontSize={12} tickLine={false} axisLine={false} />
-                  <Tooltip contentStyle={{ background: '#f5f8ff', border: '1px solid #6b8dd6', borderRadius: 12 }} />
-                  <Bar dataKey="steps" fill="#6b8dd6" radius={[6, 6, 0, 0]} name="Шаги" />
-                </BarChart>
-              </ResponsiveContainer>
+              {data.length === 0 ? (
+                <div className="flex items-center justify-center h-[240px] text-[#b0bcd4] text-sm">
+                  Нет данных за последние 7 дней
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height={240}>
+                  <BarChart data={data}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#eef2ff" opacity={0.4} vertical={false} />
+                    <XAxis dataKey="day" stroke="#4a5a8a" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis stroke="#4a5a8a" fontSize={12} tickLine={false} axisLine={false} />
+                    <Tooltip contentStyle={{ background: '#f5f8ff', border: '1px solid #6b8dd6', borderRadius: 12 }} />
+                    <Bar dataKey="steps" fill="#6b8dd6" radius={[6, 6, 0, 0]} name="Шаги" />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
             </motion.div>
 
             {/* Индекс здоровья и сон */}
@@ -86,17 +92,23 @@ export default function AnalyticsPage() {
             >
               <h3 className="text-lg font-bold text-[#1a1e5e] mb-1">Сон и индекс здоровья</h3>
               <p className="text-sm text-[#4a5a8a] mb-6">Динамика за 7 дней</p>
-              <ResponsiveContainer width="100%" height={240}>
-                <LineChart data={data}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#eef2ff" opacity={0.4} vertical={false} />
-                  <XAxis dataKey="day" stroke="#4a5a8a" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#4a5a8a" fontSize={12} tickLine={false} axisLine={false} />
-                  <Tooltip contentStyle={{ background: '#f5f8ff', border: '1px solid #93b4e8', borderRadius: 12 }} />
-                  <Legend wrapperStyle={{ fontSize: 12, color: '#4a5a8a' }} />
-                  <Line type="monotone" dataKey="score" stroke="#6b8dd6" strokeWidth={3} dot={{ r: 5 }} name="Индекс" />
-                  <Line type="monotone" dataKey="sleep" stroke="#93b4e8" strokeWidth={3} dot={{ r: 5 }} name="Сон (ч)" />
-                </LineChart>
-              </ResponsiveContainer>
+              {data.length === 0 ? (
+                <div className="flex items-center justify-center h-[240px] text-[#b0bcd4] text-sm">
+                  Нет данных за последние 7 дней
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height={240}>
+                  <LineChart data={data}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#eef2ff" opacity={0.4} vertical={false} />
+                    <XAxis dataKey="day" stroke="#4a5a8a" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis stroke="#4a5a8a" fontSize={12} tickLine={false} axisLine={false} />
+                    <Tooltip contentStyle={{ background: '#f5f8ff', border: '1px solid #93b4e8', borderRadius: 12 }} />
+                    <Legend wrapperStyle={{ fontSize: 12, color: '#4a5a8a' }} />
+                    <Line type="monotone" dataKey="score" stroke="#6b8dd6" strokeWidth={3} dot={{ r: 5 }} name="Индекс" />
+                    <Line type="monotone" dataKey="sleep" stroke="#93b4e8" strokeWidth={3} dot={{ r: 5 }} name="Сон (ч)" />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
             </motion.div>
           </div>
 

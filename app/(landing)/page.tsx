@@ -6,9 +6,6 @@ import { DashboardPreview } from '@/components/landing/DashboardPreview';
 import { CTA }              from '@/components/landing/CTA';
 import { Footer }           from '@/components/landing/Footer';
 
-// Статически рендерим лендинг — он не зависит от данных пользователя
-export const dynamic = 'force-static';
-
 export default function LandingPage() {
   return (
     <>

@@ -5,9 +5,10 @@ export const dynamic = 'force-dynamic';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 import {
   Zap, TrendingUp, Heart, Footprints, Moon, Weight,
-  RefreshCw, Sparkles,
+  RefreshCw, Sparkles, Loader2,
 } from '@/components/icons';
 
 import { HealthScore }     from '@/components/dashboard/HealthScore';
@@ -50,6 +51,7 @@ export default function DashboardPage() {
   const [loadingAI, setLoadingAI]           = useState(false);
   const [refreshingAI, setRefreshingAI]     = useState(false);
   const [healthScore, setHealthScore]       = useState(0);
+  const [syncing,    setSyncing]            = useState(false);
 
   const userName = (session?.user as { name?: string })?.name ?? 'Пользователь';
 
@@ -115,6 +117,28 @@ export default function DashboardPage() {
     toast('Запись добавлена', 'success');
   };
 
+  // ── Синхронизация данных ───────────────────────────────────────────────────
+  const handleSync = async () => {
+    if (syncing) return;
+    setSyncing(true);
+    try {
+      // Если подключён Google Health — сначала подтягиваем оттуда
+      if (hasFitbit) {
+        const r = await fetch('/api/integrations/fitbit/sync', { method: 'POST' });
+        const d = await r.json();
+        if (!r.ok) toast(d.error ?? 'Ошибка синхронизации Google Health', 'error');
+        else toast(d.message ?? 'Google Health синхронизирован', 'success');
+      }
+      await fetchHealth();
+      fetchAI(false);
+      if (!hasFitbit) toast('Данные обновлены', 'success');
+    } catch {
+      toast('Ошибка обновления', 'error');
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   // ── Скелетон ──────────────────────────────────────────────────────────────
   if (loadingHealth) {
     return (
@@ -160,16 +184,21 @@ export default function DashboardPage() {
             <AddMetricForm onSuccess={handleEntryAdded} />
 
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => { fetchHealth(); fetchAI(false); }}
+              whileHover={{ scale: syncing ? 1 : 1.05 }}
+              whileTap={{ scale: syncing ? 1 : 0.95 }}
+              onClick={handleSync}
+              disabled={syncing}
               className="flex items-center gap-2 px-4 py-2.5
                          bg-[#f5f8ff] hover:bg-[#eef2ff]
                          text-[#1a1e5e] text-sm font-medium rounded-xl
-                         border border-[#c5d3f0]/30 transition-colors"
+                         border border-[#c5d3f0]/30 transition-colors disabled:opacity-60"
             >
-              <Zap className="w-4 h-4" />
-              <span className="hidden sm:inline">Синхронизировать</span>
+              {syncing
+                ? <Loader2 className="w-4 h-4 animate-spin" />
+                : <Zap className="w-4 h-4" />}
+              <span className="hidden sm:inline">
+                {syncing ? 'Синхронизация...' : 'Синхронизировать'}
+              </span>
             </motion.button>
           </div>
         </div>
@@ -205,14 +234,16 @@ export default function DashboardPage() {
               transition={{ delay: 1.2 }}
               className="mt-5 sm:mt-8 grid grid-cols-2 gap-3 relative z-10"
             >
-              <button className="px-4 py-3 bg-[#6b8dd6]/10 hover:bg-[#6b8dd6]/20
-                                 rounded-xl text-sm font-medium text-[#6b8dd6] transition-all">
+              <Link href="/details"
+                className="block px-4 py-3 bg-[#6b8dd6]/10 hover:bg-[#6b8dd6]/20
+                           rounded-xl text-sm font-medium text-[#6b8dd6] text-center transition-all">
                 Подробнее
-              </button>
-              <button className="px-4 py-3 bg-[#c5d3f0]/20 hover:bg-[#c5d3f0]/30
-                                 rounded-xl text-sm font-medium text-[#1a1e5e] transition-all">
+              </Link>
+              <Link href="/history"
+                className="block px-4 py-3 bg-[#c5d3f0]/20 hover:bg-[#c5d3f0]/30
+                           rounded-xl text-sm font-medium text-[#1a1e5e] text-center transition-all">
                 История
-              </button>
+              </Link>
             </motion.div>
           </div>
         </motion.div>

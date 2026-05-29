@@ -105,20 +105,24 @@ export default function AdminAnalyticsPage() {
               <Users className="w-4 h-4 text-[#93b4e8]" />
               <h3 className="text-white font-semibold text-sm">Новые пользователи</h3>
             </div>
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={data.chart} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-                <XAxis dataKey="date" tickFormatter={fmt} tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} interval={4} />
-                <YAxis tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} allowDecimals={false} />
-                <Tooltip
-                  contentStyle={{ background: '#1A1A2E', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12 }}
-                  labelStyle={{ color: 'rgba(255,255,255,0.6)' }}
-                  labelFormatter={(v: unknown) => fmt(String(v))}
-                  cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-                />
-                <Bar dataKey="users" fill="#93b4e8" radius={[4, 4, 0, 0]} name="Регистраций" />
-              </BarChart>
-            </ResponsiveContainer>
+            {data.chart.length === 0 ? (
+              <div className="flex items-center justify-center h-[220px] text-white/30 text-sm">Нет данных</div>
+            ) : (
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={data.chart} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                  <XAxis dataKey="date" tickFormatter={fmt} tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} interval={4} />
+                  <YAxis tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} allowDecimals={false} />
+                  <Tooltip
+                    contentStyle={{ background: '#1A1A2E', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12 }}
+                    labelStyle={{ color: 'rgba(255,255,255,0.6)' }}
+                    labelFormatter={(v: unknown) => fmt(String(v))}
+                    cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                  />
+                  <Bar dataKey="users" fill="#93b4e8" radius={[4, 4, 0, 0]} name="Регистраций" />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </Card>
         </motion.div>
 
@@ -129,19 +133,23 @@ export default function AdminAnalyticsPage() {
               <Activity className="w-4 h-4 text-[#6b8dd6]" />
               <h3 className="text-white font-semibold text-sm">Записи здоровья</h3>
             </div>
-            <ResponsiveContainer width="100%" height={220}>
-              <LineChart data={data.chart} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-                <XAxis dataKey="date" tickFormatter={fmt} tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} interval={4} />
-                <YAxis tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} allowDecimals={false} />
-                <Tooltip
-                  contentStyle={{ background: '#1A1A2E', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12 }}
-                  labelStyle={{ color: 'rgba(255,255,255,0.6)' }}
-                  labelFormatter={(v: unknown) => fmt(String(v))}
-                />
-                <Line type="monotone" dataKey="entries" stroke="#6b8dd6" strokeWidth={2} dot={false} name="Записей" />
-              </LineChart>
-            </ResponsiveContainer>
+            {data.chart.length === 0 ? (
+              <div className="flex items-center justify-center h-[220px] text-white/30 text-sm">Нет данных</div>
+            ) : (
+              <ResponsiveContainer width="100%" height={220}>
+                <LineChart data={data.chart} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                  <XAxis dataKey="date" tickFormatter={fmt} tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} interval={4} />
+                  <YAxis tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} allowDecimals={false} />
+                  <Tooltip
+                    contentStyle={{ background: '#1A1A2E', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12 }}
+                    labelStyle={{ color: 'rgba(255,255,255,0.6)' }}
+                    labelFormatter={(v: unknown) => fmt(String(v))}
+                  />
+                  <Line type="monotone" dataKey="entries" stroke="#6b8dd6" strokeWidth={2} dot={false} name="Записей" />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
           </Card>
         </motion.div>
       </div>
