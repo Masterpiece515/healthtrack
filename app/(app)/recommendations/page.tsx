@@ -4,53 +4,117 @@ export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, ArrowRight, CheckCircle, RefreshCw, Loader2, WifiOff } from '@/components/icons';
+import {
+  Sparkles, CheckCircle2, RefreshCw, Loader2, WifiOff,
+  Moon, Footprints, Weight, Heart, Lightbulb, Activity,
+} from '@/components/icons';
 import type { AIRecommendation } from '@/lib/types';
 
-const categoryLabels: Record<string, string> = {
-  sleep:      'Сон',
-  activity:   'Активность',
-  nutrition:  'Питание',
-  hydration:  'Гидратация',
-  general:    'Общее',
+// ── Метаданные категорий ──────────────────────────────────────────────────────
+const CATEGORY_META: Record<string, {
+  label: string; icon: React.ElementType; color: string; bg: string;
+}> = {
+  sleep:     { label: 'Сон',        icon: Moon,       color: '#6366f1', bg: '#eef2ff' },
+  activity:  { label: 'Активность', icon: Footprints,  color: '#6b8dd6', bg: '#eff6ff' },
+  nutrition: { label: 'Питание',    icon: Weight,      color: '#10b981', bg: '#ecfdf5' },
+  hydration: { label: 'Гидратация', icon: Heart,       color: '#0ea5e9', bg: '#f0f9ff' },
+  general:   { label: 'Общее',      icon: Lightbulb,   color: '#f59e0b', bg: '#fffbeb' },
 };
 
-const priorityLabel: Record<string, string> = {
-  high:   'Важно',
-  medium: 'Средний',
-  low:    'Низкий',
+// ── Метаданные приоритетов ────────────────────────────────────────────────────
+const PRIORITY_META: Record<string, {
+  label: string; color: string; bg: string; border: string;
+}> = {
+  high:   { label: 'Важно',   color: '#ef4444', bg: '#fef2f2', border: '#fca5a5' },
+  medium: { label: 'Средний', color: '#6b8dd6', bg: '#eff6ff', border: '#93c5fd' },
+  low:    { label: 'Низкий',  color: '#6b7280', bg: '#f9fafb', border: '#d1d5db' },
 };
 
-const priorityColor: Record<string, string> = {
-  high:   'bg-red-500/15 text-red-500',
-  medium: 'bg-blue-500/15 text-blue-500',
-  low:    'bg-gray-500/15 text-gray-500',
-};
+// ── Карточка рекомендации ─────────────────────────────────────────────────────
+function RecCard({ item, index }: { item: AIRecommendation; index: number }) {
+  const [done, setDone] = useState(false);
 
-const categoryIcon: Record<string, string> = {
-  sleep:     '😴',
-  activity:  '🏃',
-  nutrition: '🥗',
-  hydration: '💧',
-  general:   '💡',
-};
+  const cat  = CATEGORY_META[item.category]  ?? CATEGORY_META.general;
+  const pri  = PRIORITY_META[item.priority]  ?? PRIORITY_META.low;
+  const Icon = cat.icon;
 
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: done ? 0.55 : 1, y: 0 }}
+      transition={{ duration: 0.35, delay: index * 0.08 }}
+      className={`bg-white rounded-2xl p-5 sm:p-6 border transition-all ${
+        done
+          ? 'border-green-200 bg-green-50/30'
+          : 'border-[#e8eef8] hover:border-[#6b8dd6]/40 hover:shadow-md'
+      }`}
+      style={{ borderLeftWidth: 4, borderLeftColor: done ? '#4ade80' : pri.color }}
+    >
+      <div className="flex items-start gap-4">
+
+        {/* Иконка категории */}
+        <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+             style={{ background: done ? '#dcfce7' : cat.bg }}>
+          <Icon className="w-5 h-5" style={{ color: done ? '#16a34a' : cat.color }} />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          {/* Заголовок + бейджи */}
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2">
+            <h3 className={`font-semibold text-base leading-snug ${done ? 'line-through text-[#9ca3af]' : 'text-[#1a1e5e]'}`}>
+              {item.title}
+            </h3>
+            <div className="flex items-center gap-1.5 flex-shrink-0 flex-wrap">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                    style={{ background: pri.bg, color: pri.color, border: `1px solid ${pri.border}` }}>
+                {pri.label}
+              </span>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-medium"
+                    style={{ background: cat.bg, color: cat.color }}>
+                {cat.label}
+              </span>
+            </div>
+          </div>
+
+          {/* Описание */}
+          <p className={`text-sm leading-relaxed mb-4 ${done ? 'text-[#9ca3af]' : 'text-[#4a5a8a]'}`}>
+            {item.description}
+          </p>
+
+          {/* Кнопка «Выполнено» */}
+          <button
+            onClick={() => setDone(v => !v)}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold
+                        border transition-all ${
+              done
+                ? 'bg-green-50 border-green-200 text-green-600 hover:bg-green-100'
+                : 'bg-white border-[#e8eef8] text-[#4a5a8a] hover:border-[#6b8dd6]/40 hover:text-[#6b8dd6]'
+            }`}
+          >
+            <CheckCircle2 className={`w-3.5 h-3.5 ${done ? 'text-green-500' : 'text-[#c5d3f0]'}`} />
+            {done ? 'Выполнено' : 'Отметить выполненным'}
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// ── Страница ──────────────────────────────────────────────────────────────────
 export default function RecommendationsPage() {
-  const [recs, setRecs]           = useState<AIRecommendation[]>([]);
-  const [loading, setLoading]     = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const [recs,        setRecs]        = useState<AIRecommendation[]>([]);
+  const [loading,     setLoading]     = useState(true);
+  const [refreshing,  setRefreshing]  = useState(false);
   const [generatedAt, setGeneratedAt] = useState('');
-  const [model, setModel]         = useState('');
-  const [error, setError]         = useState('');
+  const [model,       setModel]       = useState('');
+  const [error,       setError]       = useState('');
 
   const load = useCallback(async (force = false) => {
-    if (force) setRefreshing(true);
-    else setLoading(true);
+    if (force) setRefreshing(true); else setLoading(true);
     setError('');
-
     try {
-      const res = await fetch('/api/recommendations', { cache: 'no-store' });
-      if (!res.ok) throw new Error('Ошибка сервера');
+      const res  = await fetch('/api/recommendations', { cache: 'no-store' });
+      if (!res.ok) throw new Error();
       const data = await res.json();
       setRecs(data.recommendations ?? []);
       setGeneratedAt(data.generatedAt ?? '');
@@ -65,164 +129,120 @@ export default function RecommendationsPage() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Счётчик по приоритетам
+  const highCount = recs.filter(r => r.priority === 'high').length;
+
   return (
-    <div className="space-y-8">
-      {/* Заголовок */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4"
-      >
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-[#6b8dd6] to-[#93b4e8]
-                            rounded-xl flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
+    <div className="space-y-6">
+
+      {/* ── Заголовок ── */}
+      <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }}>
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#6b8dd6] to-[#93b4e8]
+                              rounded-xl flex items-center justify-center shadow-sm">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-[#1a1e5e]">AI Рекомендации</h1>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-[#1a1e5e]">AI Рекомендации</h1>
+            <p className="text-[#4a5a8a] text-sm">Персонализированные советы на основе ваших данных</p>
+            {generatedAt && !loading && (
+              <div className="flex items-center gap-2 flex-wrap mt-1.5">
+                <p className="text-xs text-[#4a5a8a]/60">
+                  Обновлено: {new Date(generatedAt).toLocaleString('ru-RU')}
+                </p>
+                {model && model !== 'static-fallback' && model !== 'fallback' ? (
+                  <span className="px-2 py-0.5 bg-[#6b8dd6]/10 text-[#6b8dd6] rounded-full text-xs font-medium">
+                    Groq AI
+                  </span>
+                ) : (
+                  <span className="px-2 py-0.5 bg-amber-500/10 text-amber-600 rounded-full text-xs font-medium">
+                    Статические советы
+                  </span>
+                )}
+              </div>
+            )}
           </div>
-          <p className="text-[#4a5a8a]">Персонализированные советы на основе ваших данных</p>
-          {generatedAt && !loading && (
-            <p className="text-xs text-[#4a5a8a]/60 mt-1 flex items-center gap-2 flex-wrap">
-              Обновлено: {new Date(generatedAt).toLocaleString('ru-RU')}
-              {model && model !== 'static-fallback' && model !== 'fallback' ? (
-                <span className="px-2 py-0.5 bg-[#6b8dd6]/15 text-[#6b8dd6] rounded-full text-xs font-medium">
-                  Groq · {model}
-                </span>
-              ) : (
-                <span className="px-2 py-0.5 bg-yellow-500/15 text-yellow-600 rounded-full text-xs font-medium">
-                  Статические данные — добавьте GROQ_API_KEY
-                </span>
-              )}
-            </p>
-          )}
+
+          <motion.button
+            onClick={() => load(true)}
+            disabled={loading || refreshing}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
+            className="flex items-center gap-2 px-4 py-2.5 bg-[#6b8dd6] hover:bg-[#5a7cc5]
+                       text-white rounded-xl text-sm font-medium shadow-sm
+                       transition-colors disabled:opacity-50 flex-shrink-0 self-start"
+          >
+            {refreshing
+              ? <Loader2 className="w-4 h-4 animate-spin" />
+              : <RefreshCw className="w-4 h-4" />}
+            {refreshing ? 'Загрузка...' : 'Обновить'}
+          </motion.button>
         </div>
 
-        <motion.button
-          onClick={() => load(true)}
-          disabled={loading || refreshing}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#6b8dd6]/15
-                     hover:bg-[#6b8dd6]/25 text-[#6b8dd6] rounded-xl text-sm
-                     font-medium transition-colors disabled:opacity-50 flex-shrink-0"
-        >
-          {refreshing
-            ? <Loader2 className="w-4 h-4 animate-spin" />
-            : <RefreshCw className="w-4 h-4" />
-          }
-          {refreshing ? 'Загрузка...' : 'Обновить'}
-        </motion.button>
+        {/* Плашка важных рекомендаций */}
+        {highCount > 0 && !loading && (
+          <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
+            className="mt-4 flex items-center gap-3 px-4 py-3 bg-red-50 border border-red-200
+                       rounded-xl text-sm text-red-600">
+            <Activity className="w-4 h-4 flex-shrink-0" />
+            <span>
+              <span className="font-semibold">{highCount} важн{highCount === 1 ? 'ая' : 'ых'} рекомендаци{highCount === 1 ? 'я' : 'й'}</span>
+              {' '}— обратите внимание в первую очередь
+            </span>
+          </motion.div>
+        )}
       </motion.div>
 
-      {/* Ошибка */}
+      {/* ── Ошибка ── */}
       <AnimatePresence>
         {error && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20
-                       rounded-2xl text-red-500 text-sm"
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="flex items-center gap-3 p-4 bg-red-50 border border-red-200
+                       rounded-2xl text-red-500 text-sm">
             <WifiOff className="w-5 h-5 flex-shrink-0" />
             {error}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Скелетон загрузки */}
+      {/* ── Скелетон ── */}
       {loading ? (
         <div className="space-y-4">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="bg-white rounded-2xl p-6 shadow-lg animate-pulse">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="bg-white rounded-2xl p-6 border border-[#e8eef8] animate-pulse"
+                 style={{ borderLeftWidth: 4, borderLeftColor: '#e8eef8' }}>
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-[#6b8dd6]/20 rounded-xl flex-shrink-0" />
-                <div className="flex-1 space-y-3">
-                  <div className="h-5 bg-[#6b8dd6]/20 rounded-lg w-2/3" />
-                  <div className="h-4 bg-[#6b8dd6]/10 rounded-lg w-full" />
-                  <div className="h-4 bg-[#6b8dd6]/10 rounded-lg w-4/5" />
+                <div className="w-11 h-11 bg-[#f0f4ff] rounded-xl flex-shrink-0" />
+                <div className="flex-1 space-y-2.5">
+                  <div className="h-4 bg-[#f0f4ff] rounded w-1/2" />
+                  <div className="h-3 bg-[#f5f8ff] rounded w-full" />
+                  <div className="h-3 bg-[#f5f8ff] rounded w-3/4" />
                 </div>
               </div>
             </div>
           ))}
-          <p className="text-center text-[#4a5a8a] text-sm pt-2 flex items-center justify-center gap-2">
+          <p className="text-center text-[#4a5a8a] text-sm flex items-center justify-center gap-2">
             <Loader2 className="w-4 h-4 animate-spin" />
-            AI анализирует ваши данные...
+            AI анализирует ваши данные…
           </p>
         </div>
       ) : (
-        <>
-          {/* Карточки рекомендаций */}
-          <div className="space-y-4">
-            {recs.map((item, index) => (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
-                className="bg-white rounded-2xl p-6 shadow-lg border border-transparent
-                           hover:border-[#6b8dd6]/30 transition-all cursor-pointer"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-[#6b8dd6]/20 to-[#93b4e8]/20
-                                  rounded-xl flex items-center justify-center flex-shrink-0 text-2xl">
-                    {categoryIcon[item.category] ?? '💡'}
-                  </div>
+        <div className="space-y-3">
+          {recs.map((item, i) => (
+            <RecCard key={item.id} item={item} index={i} />
+          ))}
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
-                      <h3 className="text-base sm:text-lg font-semibold text-[#1a1e5e]">{item.title}</h3>
-                      <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${priorityColor[item.priority]}`}>
-                          {priorityLabel[item.priority]}
-                        </span>
-                        <span className="px-2.5 py-1 rounded-full text-xs font-medium
-                                         bg-[#6b8dd6]/15 text-[#6b8dd6]">
-                          {categoryLabels[item.category] ?? item.category}
-                        </span>
-                      </div>
-                    </div>
-
-                    <p className="text-[#4a5a8a] leading-relaxed mb-4">{item.description}</p>
-
-                    {item.actionable ? (
-                      <motion.button
-                        whileHover={{ x: 4 }}
-                        className="flex items-center gap-2 px-4 py-2 bg-[#6b8dd6]/10
-                                   hover:bg-[#6b8dd6]/20 text-[#6b8dd6] rounded-lg text-sm
-                                   font-medium transition-colors"
-                      >
-                        <span>Применить</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </motion.button>
-                    ) : (
-                      <div className="flex items-center gap-2 text-[#4ade80] text-sm">
-                        <CheckCircle className="w-4 h-4" />
-                        <span>Выполняется</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Инфо-блок */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="bg-gradient-to-br from-[#eef2ff] to-[#f5f8ff]
-                       rounded-2xl p-6 border border-[#1a1e5e]/20"
-          >
-            <p className="text-sm text-[#4a5a8a] text-center">
-              💡 Рекомендации генерируются с помощью Groq AI (Llama 3.3 70B) на основе ваших показателей за последние 7 дней.
-              Нажмите «Обновить» чтобы получить новый анализ.
-            </p>
-          </motion.div>
-        </>
+          {/* Подвал */}
+          {recs.length > 0 && (
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+              className="text-center text-xs text-[#4a5a8a]/60 pt-2">
+              Рекомендации сгенерированы Groq AI на основе показателей за 7 дней.
+              Нажмите «Обновить» для нового анализа.
+            </motion.p>
+          )}
+        </div>
       )}
     </div>
   );
