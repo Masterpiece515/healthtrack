@@ -117,6 +117,11 @@ export async function GET(): Promise<NextResponse<RecommendationsResponse>> {
 
     const entries = getRecentEntries(userId, 7);
 
+    // Нет данных — просим пользователя внести показатели
+    if (entries.length === 0) {
+      return apiOk({ recommendations: [], generatedAt: new Date().toISOString(), model: 'no-data', noData: true });
+    }
+
     if (!process.env.GROQ_API_KEY) {
       return apiOk({ recommendations: FALLBACK, generatedAt: new Date().toISOString(), model: 'static-fallback' });
     }

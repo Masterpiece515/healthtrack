@@ -6,9 +6,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Sparkles, CheckCircle2, RefreshCw, Loader2, WifiOff,
-  Moon, Footprints, Weight, Heart, Lightbulb, Activity,
+  Moon, Footprints, Weight, Heart, Lightbulb, Activity, ClipboardList,
 } from '@/components/icons';
 import type { AIRecommendation } from '@/lib/types';
+import Link from 'next/link';
 
 // ── Метаданные категорий ──────────────────────────────────────────────────────
 const CATEGORY_META: Record<string, {
@@ -108,6 +109,7 @@ export default function RecommendationsPage() {
   const [generatedAt, setGeneratedAt] = useState('');
   const [model,       setModel]       = useState('');
   const [error,       setError]       = useState('');
+  const [noData,      setNoData]      = useState(false);
 
   const load = useCallback(async (force = false) => {
     if (force) setRefreshing(true); else setLoading(true);
@@ -116,6 +118,7 @@ export default function RecommendationsPage() {
       const res  = await fetch('/api/recommendations', { cache: 'no-store' });
       if (!res.ok) throw new Error();
       const data = await res.json();
+      setNoData(data.noData ?? false);
       setRecs(data.recommendations ?? []);
       setGeneratedAt(data.generatedAt ?? '');
       setModel(data.model ?? '');
@@ -207,6 +210,58 @@ export default function RecommendationsPage() {
         )}
       </AnimatePresence>
 
+      {/* ── Нет данных ── */}
+      {!loading && noData && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col items-center text-center py-16 px-4"
+        >
+          <div className="w-20 h-20 bg-[#eef2ff] rounded-3xl flex items-center justify-center mb-6">
+            <ClipboardList className="w-9 h-9 text-[#6b8dd6]" />
+          </div>
+          <h2 className="text-xl font-bold text-[#1a1e5e] mb-3">
+            Ещё нет данных для анализа
+          </h2>
+          <p className="text-[#4a5a8a] text-sm leading-relaxed max-w-xs mb-8">
+            Внеси хотя бы одну запись&nbsp;— шаги, сон, пульс или вес&nbsp;— и AI сразу сформирует
+            персональные советы именно для тебя.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Link href="/dashboard">
+              <motion.div
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="flex items-center gap-2 px-5 py-3 bg-[#6b8dd6] hover:bg-[#5a7cc5]
+                           text-white rounded-xl text-sm font-semibold shadow-sm transition-colors cursor-pointer"
+              >
+                <Activity className="w-4 h-4" />
+                Внести данные
+              </motion.div>
+            </Link>
+          </div>
+
+          {/* Подсказка что именно вносить */}
+          <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-3 w-full max-w-md">
+            {[
+              { icon: Footprints, label: 'Шаги',  color: '#6b8dd6', bg: '#eff6ff' },
+              { icon: Moon,       label: 'Сон',   color: '#6366f1', bg: '#eef2ff' },
+              { icon: Heart,      label: 'Пульс', color: '#0ea5e9', bg: '#f0f9ff' },
+              { icon: Weight,     label: 'Вес',   color: '#10b981', bg: '#ecfdf5' },
+            ].map(({ icon: Icon, label, color, bg }) => (
+              <div key={label}
+                   className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-[#e8eef8]">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+                     style={{ background: bg }}>
+                  <Icon className="w-5 h-5" style={{ color }} />
+                </div>
+                <span className="text-xs text-[#4a5a8a] font-medium">{label}</span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
       {/* ── Скелетон ── */}
       {loading ? (
         <div className="space-y-4">
@@ -228,7 +283,7 @@ export default function RecommendationsPage() {
             AI анализирует ваши данные…
           </p>
         </div>
-      ) : (
+      ) : !noData && (
         <div className="space-y-3">
           {recs.map((item, i) => (
             <RecCard key={item.id} item={item} index={i} />
