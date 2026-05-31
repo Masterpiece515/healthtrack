@@ -95,6 +95,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           token.role  = row.role;
           token.name  = row.name;
           token.email = row.email;
+        } else {
+          // Пользователь удалён из БД — инвалидируем сессию немедленно
+          token.id    = undefined;
+          token.role  = undefined;
+          token.name  = undefined;
+          token.email = undefined;
         }
       }
       if (!token.role) token.role = 'user';
