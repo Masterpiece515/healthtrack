@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin, AuthError, ForbiddenError } from '@/lib/auth-utils';
 import { apiOk, apiNoContent, apiError } from '@/lib/api-response';
-import { db } from '@/lib/db';
+import { db, persistDb } from '@/lib/db';
 import { users, healthEntries, goals, recommendations, streaks, integrations, userSettings } from '@/lib/db/schema';
 import { eq, desc, sql } from 'drizzle-orm';
 
@@ -81,6 +81,7 @@ export async function DELETE(
     db.delete(goals).where(eq(goals.userId, id)).run();
     db.delete(healthEntries).where(eq(healthEntries.userId, id)).run();
     db.delete(users).where(eq(users.id, id)).run();
+    persistDb(); // явный флаш на диск
     return apiNoContent();
   } catch (err) {
     if (err instanceof AuthError)    return apiError(err.message, 401) as NextResponse;

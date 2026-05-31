@@ -40,8 +40,9 @@ export default function AdminUsersPage() {
   const [search,  setSearch]  = useState('');
   const [confirm, setConfirm] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetch('/api/admin/users')
+  const loadUsers = () => {
+    setLoading(true);
+    fetch('/api/admin/users', { cache: 'no-store' })
       .then(r => r.json())
       .then(data => {
         if (Array.isArray(data)) setUsers(data);
@@ -49,17 +50,21 @@ export default function AdminUsersPage() {
       })
       .catch(() => setError('Не удалось загрузить пользователей'))
       .finally(() => setLoading(false));
-  }, []);
+  };
+
+  useEffect(() => { loadUsers(); }, []);
 
   async function handleDelete(id: string) {
+    setConfirm(null);
     const res = await fetch(`/api/admin/users/${id}`, { method: 'DELETE' });
     if (res.ok || res.status === 204) {
+      // Убираем из локального стейта и перезагружаем с сервера для подтверждения
       setUsers(prev => prev.filter(u => u.id !== id));
+      setTimeout(loadUsers, 500);
     } else {
       const data = await res.json().catch(() => ({}));
-      alert(data.error ?? 'Ошибка удаления');
+      setError(data.error ?? 'Не удалось удалить пользователя');
     }
-    setConfirm(null);
   }
 
   async function handleToggleRole(user: AdminUser) {
@@ -73,7 +78,7 @@ export default function AdminUsersPage() {
       setUsers(prev => prev.map(u => u.id === user.id ? { ...u, role: newRole } : u));
     } else {
       const data = await res.json().catch(() => ({}));
-      alert(data.error ?? 'Ошибка изменения роли');
+      setError(data.error ?? 'Не удалось изменить роль');
     }
   }
 
