@@ -14,20 +14,20 @@ export default auth((req) => {
     nextUrl.pathname.startsWith('/recommendations') ||
     nextUrl.pathname.startsWith('/profile') ||
     nextUrl.pathname.startsWith('/history') ||
-    nextUrl.pathname.startsWith('/settings');
+    nextUrl.pathname.startsWith('/settings') ||
+    nextUrl.pathname.startsWith('/details') ||
+    nextUrl.pathname.startsWith('/admin');
 
   const isAuthPage =
     nextUrl.pathname === '/login' ||
     nextUrl.pathname === '/register';
 
+  // Только полностью незалогиненные — на логин
+  // (удалённых пользователей перехватывает layout через auth() с проверкой БД)
   if (isProtected && !isLoggedIn) {
     const loginUrl = new URL('/login', nextUrl.origin);
     loginUrl.searchParams.set('callbackUrl', nextUrl.pathname);
     return NextResponse.redirect(loginUrl);
-  }
-
-  if (isAuthPage && isLoggedIn) {
-    return NextResponse.redirect(new URL('/dashboard', nextUrl.origin));
   }
 
   return NextResponse.next();
