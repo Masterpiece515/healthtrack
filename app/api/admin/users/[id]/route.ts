@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin, AuthError, ForbiddenError } from '@/lib/auth-utils';
 import { apiOk, apiNoContent, apiError } from '@/lib/api-response';
 import { db } from '@/lib/db';
-import { users, healthEntries, goals } from '@/lib/db/schema';
+import { users, healthEntries, goals, recommendations, streaks, integrations, userSettings } from '@/lib/db/schema';
 import { eq, desc, sql } from 'drizzle-orm';
 
 // ── GET /api/admin/users/[id] — детали пользователя ───────────────────────
@@ -73,6 +73,13 @@ export async function DELETE(
     const target = db.select().from(users).where(eq(users.id, id)).get();
     if (!target) return apiError('Пользователь не найден', 404);
 
+    // Сначала удаляем все связанные данные (foreign_keys = ON не даст удалить иначе)
+    db.delete(recommendations).where(eq(recommendations.userId, id)).run();
+    db.delete(streaks).where(eq(streaks.userId, id)).run();
+    db.delete(integrations).where(eq(integrations.userId, id)).run();
+    db.delete(userSettings).where(eq(userSettings.userId, id)).run();
+    db.delete(goals).where(eq(goals.userId, id)).run();
+    db.delete(healthEntries).where(eq(healthEntries.userId, id)).run();
     db.delete(users).where(eq(users.id, id)).run();
     return apiNoContent();
   } catch (err) {
