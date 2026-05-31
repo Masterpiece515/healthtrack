@@ -1,8 +1,17 @@
 // Layout для защищённых страниц: сайдбар + контент
+import { redirect } from 'next/navigation';
+import { auth } from '@/auth';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { SyncOnLogin } from '@/components/layout/SyncOnLogin';
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth();
+
+  // Нет сессии или пользователь удалён из БД (JWT инвалидирован) — на логин
+  if (!session?.user?.id) {
+    redirect('/login');
+  }
+
   return (
     <div className="flex h-full min-h-screen">
       <SyncOnLogin />
