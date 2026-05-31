@@ -20,15 +20,11 @@ export default auth((req) => {
     pathname.startsWith('/analytics') ||
     pathname.startsWith('/admin');
 
+  // Только для полностью незалогиненных (нет куки вообще)
   if (isProtected && !isLoggedIn) {
     const loginUrl = new URL('/login', req.url);
     loginUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(loginUrl);
-  }
-
-  // Если уже залогинен — не пускаем на /login и /register
-  if (isLoggedIn && (pathname === '/login' || pathname === '/register')) {
-    return NextResponse.redirect(new URL('/dashboard', req.url));
   }
 });
 
