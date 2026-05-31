@@ -38,7 +38,7 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState<string | null>(null);
   const [search,  setSearch]  = useState('');
-  const [confirm, setConfirm] = useState<string | null>(null); // userId to delete
+  const [confirm, setConfirm] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/admin/users')
@@ -83,23 +83,18 @@ export default function AdminUsersPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Заголовок */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <div className="flex items-center gap-3 mb-1">
-          <Users className="w-7 h-7 text-amber-400" />
-          <h1 className="text-2xl font-bold text-white">Пользователи</h1>
+          <Users className="w-6 h-6 text-amber-400" />
+          <h1 className="text-xl sm:text-2xl font-bold text-white">Пользователи</h1>
         </div>
         <p className="text-white/40 text-sm">Управление аккаунтами и ролями</p>
       </motion.div>
 
       {/* Поиск */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="relative"
-      >
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="relative">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
         <input
           type="text"
@@ -108,14 +103,12 @@ export default function AdminUsersPage() {
           onChange={e => setSearch(e.target.value)}
           className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3
                      text-white placeholder:text-white/30 outline-none focus:border-amber-500/50
-                     focus:ring-1 focus:ring-amber-500/20 transition-all"
+                     focus:ring-1 focus:ring-amber-500/20 transition-all text-sm"
         />
       </motion.div>
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl p-4">
-          {error}
-        </div>
+        <div className="bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl p-4 text-sm">{error}</div>
       )}
 
       {loading ? (
@@ -123,130 +116,195 @@ export default function AdminUsersPage() {
           <div className="w-8 h-8 border-2 border-amber-400/30 border-t-amber-400 rounded-full animate-spin" />
         </div>
       ) : (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.15 }}
-          className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden"
-        >
-          {/* Таблица */}
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-white/10">
-                  <th className="text-left text-white/40 font-medium px-5 py-4">Пользователь</th>
-                  <th className="text-left text-white/40 font-medium px-5 py-4 hidden sm:table-cell">Роль</th>
-                  <th className="text-left text-white/40 font-medium px-5 py-4 hidden md:table-cell">Записей</th>
-                  <th className="text-left text-white/40 font-medium px-5 py-4 hidden lg:table-cell">Дата регистрации</th>
-                  <th className="text-right text-white/40 font-medium px-5 py-4">Действия</th>
-                </tr>
-              </thead>
-              <tbody>
-                <AnimatePresence>
-                  {filtered.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} className="text-center text-white/30 py-12">
-                        Пользователи не найдены
-                      </td>
-                    </tr>
-                  ) : (
-                    filtered.map((user, i) => (
-                      <motion.tr
-                        key={user.id}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 10 }}
-                        transition={{ delay: i * 0.03 }}
-                        className="border-b border-white/5 hover:bg-white/5 transition-colors"
-                      >
-                        {/* Пользователь */}
-                        <td className="px-5 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#6b8dd6] to-[#93b4e8]
-                                            flex items-center justify-center flex-shrink-0">
-                              <span className="text-white text-sm font-bold">
-                                {user.name.charAt(0).toUpperCase()}
-                              </span>
-                            </div>
-                            <div>
-                              <p className="text-white font-medium leading-tight">
-                                {user.name}
-                                {user.id === currentUserId && (
-                                  <span className="ml-2 text-xs text-amber-400/70">(вы)</span>
-                                )}
-                              </p>
-                              <p className="text-white/40 text-xs">{user.email}</p>
-                            </div>
-                          </div>
-                        </td>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }}>
 
-                        {/* Роль */}
-                        <td className="px-5 py-4 hidden sm:table-cell">
-                          <RoleBadge role={user.role} />
-                        </td>
-
-                        {/* Кол-во записей */}
-                        <td className="px-5 py-4 hidden md:table-cell">
-                          <span className="text-white/60">{user.entriesCount}</span>
-                        </td>
-
-                        {/* Дата */}
-                        <td className="px-5 py-4 hidden lg:table-cell">
-                          <span className="text-white/40">
-                            {new Date(user.createdAt).toLocaleDateString('ru-RU')}
+          {/* ── Мобильные карточки ── */}
+          <div className="md:hidden space-y-2">
+            <AnimatePresence>
+              {filtered.length === 0 ? (
+                <p className="text-center text-white/30 py-12 text-sm">Пользователи не найдены</p>
+              ) : (
+                filtered.map((user, i) => (
+                  <motion.div
+                    key={user.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ delay: i * 0.03 }}
+                    className="bg-white/5 border border-white/10 rounded-2xl p-4"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      {/* Аватар + имя */}
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#6b8dd6] to-[#93b4e8]
+                                        flex items-center justify-center flex-shrink-0">
+                          <span className="text-white text-sm font-bold">
+                            {user.name.charAt(0).toUpperCase()}
                           </span>
-                        </td>
-
-                        {/* Действия */}
-                        <td className="px-5 py-4">
-                          <div className="flex items-center justify-end gap-2">
-                            {/* Просмотр */}
-                            <Link
-                              href={`/admin/users/${user.id}`}
-                              title="Просмотр пользователя"
-                              className="p-2 rounded-lg text-white/40 hover:text-blue-400 hover:bg-blue-500/10 transition-colors"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </Link>
-
-                            {user.id !== currentUserId && (
-                              <>
-                                {/* Переключить роль */}
-                                <button
-                                  onClick={() => handleToggleRole(user)}
-                                  title={user.role === 'admin' ? 'Снять права админа' : 'Назначить админом'}
-                                  className="p-2 rounded-lg text-white/40 hover:text-amber-400 hover:bg-amber-500/10 transition-colors"
-                                >
-                                  {user.role === 'admin'
-                                    ? <ShieldOff className="w-4 h-4" />
-                                    : <ShieldCheck className="w-4 h-4" />
-                                  }
-                                </button>
-
-                                {/* Удалить */}
-                                <button
-                                  onClick={() => setConfirm(user.id)}
-                                  title="Удалить пользователя"
-                                  className="p-2 rounded-lg text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-colors"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-white font-medium text-sm leading-tight truncate">
+                            {user.name}
+                            {user.id === currentUserId && (
+                              <span className="ml-1.5 text-xs text-amber-400/70">(вы)</span>
                             )}
-                          </div>
-                        </td>
-                      </motion.tr>
-                    ))
-                  )}
-                </AnimatePresence>
-              </tbody>
-            </table>
+                          </p>
+                          <p className="text-white/40 text-xs truncate">{user.email}</p>
+                        </div>
+                      </div>
+
+                      {/* Кнопки действий */}
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <Link
+                          href={`/admin/users/${user.id}`}
+                          className="w-9 h-9 flex items-center justify-center rounded-xl
+                                     text-white/40 bg-white/5 active:bg-blue-500/20 active:text-blue-400"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Link>
+                        {user.id !== currentUserId && (
+                          <>
+                            <button
+                              onClick={() => handleToggleRole(user)}
+                              className="w-9 h-9 flex items-center justify-center rounded-xl
+                                         text-white/40 bg-white/5 active:bg-amber-500/20 active:text-amber-400"
+                            >
+                              {user.role === 'admin'
+                                ? <ShieldOff className="w-4 h-4" />
+                                : <ShieldCheck className="w-4 h-4" />}
+                            </button>
+                            <button
+                              onClick={() => setConfirm(user.id)}
+                              className="w-9 h-9 flex items-center justify-center rounded-xl
+                                         text-white/40 bg-white/5 active:bg-red-500/20 active:text-red-400"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Метаданные */}
+                    <div className="flex items-center gap-2 mt-2.5 ml-[52px] flex-wrap">
+                      <RoleBadge role={user.role} />
+                      <span className="text-white/30 text-xs">{user.entriesCount} записей</span>
+                      <span className="text-white/30 text-xs">
+                        {new Date(user.createdAt).toLocaleDateString('ru-RU')}
+                      </span>
+                    </div>
+                  </motion.div>
+                ))
+              )}
+            </AnimatePresence>
           </div>
 
-          {/* Итог */}
-          <div className="px-5 py-3 border-t border-white/5 text-white/30 text-xs">
-            Показано: {filtered.length} из {users.length}
+          {/* ── Десктопная таблица ── */}
+          <div className="hidden md:block bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-white/10">
+                    <th className="text-left text-white/40 font-medium px-5 py-4">Пользователь</th>
+                    <th className="text-left text-white/40 font-medium px-5 py-4">Роль</th>
+                    <th className="text-left text-white/40 font-medium px-5 py-4 hidden md:table-cell">Записей</th>
+                    <th className="text-left text-white/40 font-medium px-5 py-4 hidden lg:table-cell">Дата регистрации</th>
+                    <th className="text-right text-white/40 font-medium px-5 py-4">Действия</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <AnimatePresence>
+                    {filtered.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="text-center text-white/30 py-12">
+                          Пользователи не найдены
+                        </td>
+                      </tr>
+                    ) : (
+                      filtered.map((user, i) => (
+                        <motion.tr
+                          key={user.id}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: 10 }}
+                          transition={{ delay: i * 0.03 }}
+                          className="border-b border-white/5 hover:bg-white/5 transition-colors"
+                        >
+                          <td className="px-5 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#6b8dd6] to-[#93b4e8]
+                                              flex items-center justify-center flex-shrink-0">
+                                <span className="text-white text-sm font-bold">
+                                  {user.name.charAt(0).toUpperCase()}
+                                </span>
+                              </div>
+                              <div>
+                                <p className="text-white font-medium leading-tight">
+                                  {user.name}
+                                  {user.id === currentUserId && (
+                                    <span className="ml-2 text-xs text-amber-400/70">(вы)</span>
+                                  )}
+                                </p>
+                                <p className="text-white/40 text-xs">{user.email}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-5 py-4"><RoleBadge role={user.role} /></td>
+                          <td className="px-5 py-4 hidden md:table-cell">
+                            <span className="text-white/60">{user.entriesCount}</span>
+                          </td>
+                          <td className="px-5 py-4 hidden lg:table-cell">
+                            <span className="text-white/40">
+                              {new Date(user.createdAt).toLocaleDateString('ru-RU')}
+                            </span>
+                          </td>
+                          <td className="px-5 py-4">
+                            <div className="flex items-center justify-end gap-2">
+                              <Link
+                                href={`/admin/users/${user.id}`}
+                                title="Просмотр"
+                                className="p-2 rounded-lg text-white/40 hover:text-blue-400 hover:bg-blue-500/10 transition-colors"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </Link>
+                              {user.id !== currentUserId && (
+                                <>
+                                  <button
+                                    onClick={() => handleToggleRole(user)}
+                                    title={user.role === 'admin' ? 'Снять права' : 'Назначить админом'}
+                                    className="p-2 rounded-lg text-white/40 hover:text-amber-400 hover:bg-amber-500/10 transition-colors"
+                                  >
+                                    {user.role === 'admin'
+                                      ? <ShieldOff className="w-4 h-4" />
+                                      : <ShieldCheck className="w-4 h-4" />}
+                                  </button>
+                                  <button
+                                    onClick={() => setConfirm(user.id)}
+                                    title="Удалить"
+                                    className="p-2 rounded-lg text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          </td>
+                        </motion.tr>
+                      ))
+                    )}
+                  </AnimatePresence>
+                </tbody>
+              </table>
+            </div>
+            <div className="px-5 py-3 border-t border-white/5 text-white/30 text-xs">
+              Показано: {filtered.length} из {users.length}
+            </div>
           </div>
+
+          {/* Счётчик для мобильных */}
+          <p className="md:hidden text-white/30 text-xs text-right mt-1">
+            {filtered.length} из {users.length}
+          </p>
         </motion.div>
       )}
 
@@ -255,21 +313,19 @@ export default function AdminUsersPage() {
         {confirm && (
           <>
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
               onClick={() => setConfirm(null)}
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="fixed inset-0 flex items-center justify-center z-50 p-4"
+              className="fixed inset-0 flex items-end sm:items-center justify-center z-50 p-4"
             >
-              <div className="bg-[#1A1A2E] border border-white/10 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+              <div className="bg-[#1A1A2E] border border-white/10 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-red-500/20 rounded-xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-red-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
                     <Trash2 className="w-5 h-5 text-red-400" />
                   </div>
                   <div>
@@ -283,14 +339,14 @@ export default function AdminUsersPage() {
                 <div className="flex gap-3">
                   <button
                     onClick={() => setConfirm(null)}
-                    className="flex-1 px-4 py-2.5 rounded-xl border border-white/10 text-white/70
+                    className="flex-1 px-4 py-3 rounded-xl border border-white/10 text-white/70
                                hover:bg-white/5 transition-colors text-sm font-medium"
                   >
                     Отмена
                   </button>
                   <button
                     onClick={() => handleDelete(confirm)}
-                    className="flex-1 px-4 py-2.5 rounded-xl bg-red-500 hover:bg-red-600
+                    className="flex-1 px-4 py-3 rounded-xl bg-red-500 hover:bg-red-600
                                text-white transition-colors text-sm font-medium"
                   >
                     Удалить

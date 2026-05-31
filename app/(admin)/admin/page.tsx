@@ -65,10 +65,10 @@ export default function AdminDashboardPage() {
           </div>
           <Link
             href="/admin/analytics"
-            className="hidden sm:flex items-center gap-2 px-4 py-2 bg-amber-500/10 border border-amber-500/30 rounded-xl text-amber-300 hover:bg-amber-500/20 transition-colors text-sm font-medium"
+            className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 border border-amber-500/30 rounded-xl text-amber-300 hover:bg-amber-500/20 transition-colors text-sm font-medium"
           >
             <BarChart3 className="w-4 h-4" />
-            Подробная аналитика
+            <span className="hidden sm:inline">Подробная</span> аналитика
           </Link>
         </div>
       </motion.div>
