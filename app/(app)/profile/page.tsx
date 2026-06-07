@@ -183,7 +183,36 @@ export default function ProfilePage() {
             ))}
           </div>
         ) : goals.length === 0 ? (
-          <p className="text-[#4a5a8a] text-sm py-8 text-center">Цели не установлены</p>
+          <div className="flex flex-col items-center gap-4 py-10">
+            <div className="text-5xl">🎯</div>
+            <p className="text-[#1a1e5e] font-semibold text-base">Цели ещё не установлены</p>
+            <p className="text-[#4a5a8a] text-sm text-center max-w-xs">
+              Установите стандартные цели и отслеживайте свой прогресс каждый день
+            </p>
+            <button
+              onClick={async () => {
+                setLoading(true);
+                const defaults = [
+                  { metric: 'steps',    target: 10000, unit: 'шагов' },
+                  { metric: 'sleep',    target: 8,     unit: 'ч'     },
+                  { metric: 'weight',   target: 70,    unit: 'кг'    },
+                  { metric: 'calories', target: 2000,  unit: 'ккал'  },
+                ];
+                await Promise.all(defaults.map(d =>
+                  fetch('/api/goals', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(d),
+                  })
+                ));
+                await fetchData();
+              }}
+              className="px-6 py-2.5 bg-[#6b8dd6] text-white text-sm font-semibold rounded-xl
+                         hover:bg-[#5a7cc5] transition-colors shadow-md"
+            >
+              Установить цели
+            </button>
+          </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {goals.map((g, i) => {
