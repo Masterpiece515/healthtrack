@@ -1,7 +1,7 @@
 import { requireUserId, AuthError } from '@/lib/auth-utils';
 import { apiError, apiOk } from '@/lib/api-response';
 import { db } from '@/lib/db';
-import { integrations } from '@/lib/db/schema';
+import { integrations, healthEntries } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { createEntry } from '@/lib/services/health.service';
 
@@ -67,11 +67,21 @@ export async function POST() {
     const [row] = db.select().from(integrations).where(eq(integrations.userId, userId)).all();
     if (!row?.googleAccessToken) return apiError('Google Fit не подключён', 400);
 
+    // Загружаем уже существующие даты для этого пользователя
+    const existing = db
+      .select({ date: healthEntries.date })
+      .from(healthEntries)
+      .where(eq(healthEntries.userId, userId))
+      .all();
+    const existingDates = new Set(existing.map(r => r.date));
+
     const days    = generateFitnessData(30);
     let imported  = 0;
     let skipped   = 0;
 
     for (const [date, d] of Object.entries(days)) {
+      // Пропускаем дату, если запись уже есть
+      if (existingDates.has(date)) { skipped++; continue; }
       try {
         createEntry(userId, {
           date,
@@ -82,9 +92,8 @@ export async function POST() {
           calories:   d.calories,
         });
         imported++;
-      } catch (e: unknown) {
-        const msg = e instanceof Error ? e.message : String(e);
-        if (msg.includes('UNIQUE')) skipped++;
+      } catch {
+        skipped++;
       }
     }
 

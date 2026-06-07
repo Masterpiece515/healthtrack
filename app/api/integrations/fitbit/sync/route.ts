@@ -1,7 +1,7 @@
 import { requireUserId, AuthError } from '@/lib/auth-utils';
 import { apiError, apiOk } from '@/lib/api-response';
 import { db, persistDb } from '@/lib/db';
-import { integrations } from '@/lib/db/schema';
+import { integrations, healthEntries } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { createEntry } from '@/lib/services/health.service';
 
@@ -172,6 +172,14 @@ export async function POST() {
     // Все даты из шагов и пульса
     const dates = [...new Set([...stepsMap.keys(), ...hrMap.keys()])].sort();
 
+    // Загружаем уже существующие даты — пропускаем их при импорте
+    const existingRows = db
+      .select({ date: healthEntries.date })
+      .from(healthEntries)
+      .where(eq(healthEntries.userId, userId))
+      .all();
+    const existingDates = new Set(existingRows.map(r => r.date));
+
     let imported   = 0;
     let skipped    = 0;
     let lastWeight = 70;
@@ -187,6 +195,9 @@ export async function POST() {
 
       if (steps === 0 && heartRate === 0) continue;
 
+      // Пропускаем дату, если запись уже существует
+      if (existingDates.has(date)) { skipped++; continue; }
+
       try {
         createEntry(userId, {
           date,
@@ -197,9 +208,8 @@ export async function POST() {
           calories:   calories ?? undefined,
         });
         imported++;
-      } catch (e: unknown) {
-        const msg = e instanceof Error ? e.message : String(e);
-        if (msg.includes('UNIQUE')) skipped++;
+      } catch {
+        skipped++;
       }
     }
 

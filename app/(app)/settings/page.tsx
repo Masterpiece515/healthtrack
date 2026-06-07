@@ -59,6 +59,7 @@ export default function SettingsPage() {
   const [gfConnected,  setGfConnected]  = useState(false);
   const [gfSyncing,    setGfSyncing]    = useState(false);
   const [gfResult,     setGfResult]     = useState('');
+  const [deduping,     setDeduping]     = useState(false);
 
   // Профиль
   const [name,  setName]  = useState('');
@@ -146,6 +147,25 @@ export default function SettingsPage() {
     } finally {
       setCsvLoading(false);
       if (fileRef.current) fileRef.current.value = '';
+    }
+  };
+
+  const deduplicateEntries = async () => {
+    setDeduping(true);
+    try {
+      const res  = await fetch('/api/health/deduplicate', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) { toast(data.error ?? 'Ошибка', 'error'); return; }
+      toast(
+        data.removed > 0
+          ? `Удалено ${data.removed} дублирующих записей`
+          : 'Дубликатов не найдено',
+        'success',
+      );
+    } catch {
+      toast('Ошибка очистки', 'error');
+    } finally {
+      setDeduping(false);
     }
   };
 
@@ -465,6 +485,27 @@ export default function SettingsPage() {
               {gfResult && (
                 <p className="text-sm text-green-600">✓ {gfResult}</p>
               )}
+            </div>
+
+            {/* Очистка дублей */}
+            <div className="mt-3 pt-3 border-t border-[#c5d3f0]/20">
+              <p className="text-xs text-[#4a5a8a] mb-2">
+                Если в списке появились повторяющиеся записи — нажмите кнопку для удаления дублей:
+              </p>
+              <motion.button
+                onClick={deduplicateEntries}
+                disabled={deduping}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium
+                           bg-amber-50 hover:bg-amber-100 text-amber-700 transition-colors disabled:opacity-60"
+              >
+                {deduping
+                  ? <Loader2 className="w-4 h-4 animate-spin" />
+                  : <Trash2 className="w-4 h-4" />
+                }
+                {deduping ? 'Очистка...' : 'Удалить дублирующие записи'}
+              </motion.button>
             </div>
           </div>
         </div>
