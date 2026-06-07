@@ -5,11 +5,12 @@ export const dynamic = 'force-dynamic';
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Mail, Activity, Award, Flame, TrendingUp, Pencil, Check, X } from '@/components/icons';
+import { User, Mail, Activity, Award, Flame, TrendingUp, Check, X } from '@/components/icons';
 import { useToast } from '@/lib/toast-context';
 
 interface Goal {
-  id: string; metric: string; target: number; unit: string; current: number; percent: number;
+  id: string; metric: string; target: number; unit: string;
+  current: number; percent: number; daysCount?: number;
 }
 interface StreakData {
   currentStreak: number;
@@ -17,12 +18,32 @@ interface StreakData {
   totalEntries:  number;
 }
 
-const METRIC_LABELS: Record<string, string> = {
-  steps: 'Шаги в день', sleep: 'Сон в сутки', weight: 'Целевой вес', calories: 'Калории',
+const METRIC_META: Record<string, { label: string; color: string; icon: string; tip: string }> = {
+  steps:    { label: 'Шаги',    color: '#6b8dd6', icon: '🚶', tip: 'среднее за 7 дней' },
+  sleep:    { label: 'Сон',     color: '#93b4e8', icon: '🌙', tip: 'среднее за 7 дней' },
+  weight:   { label: 'Вес',     color: '#a78bfa', icon: '⚖️', tip: 'последняя запись'  },
+  calories: { label: 'Калории', color: '#f97316', icon: '🔥', tip: 'среднее за 7 дней' },
 };
-const METRIC_COLORS: Record<string, string> = {
-  steps: '#6b8dd6', sleep: '#93b4e8', weight: '#4a5a8a', calories: '#eef2ff',
-};
+
+// ── Круговой прогресс SVG ────────────────────────────────────────────────────
+function Ring({ pct, color, size = 96 }: { pct: number; color: string; size?: number }) {
+  const stroke = 9;
+  const r = (size - stroke) / 2;
+  const circ = 2 * Math.PI * r;
+  const filled = Math.min(pct / 100, 1) * circ;
+  return (
+    <svg width={size} height={size} className="block" style={{ transform: 'rotate(-90deg)' }}>
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none"
+        stroke="#f0f4ff" strokeWidth={stroke} />
+      <motion.circle cx={size / 2} cy={size / 2} r={r} fill="none"
+        stroke={pct >= 100 ? '#4ade80' : color} strokeWidth={stroke}
+        strokeLinecap="round"
+        initial={{ strokeDasharray: `0 ${circ}` }}
+        animate={{ strokeDasharray: `${filled} ${circ}` }}
+        transition={{ duration: 1.1, ease: 'easeOut' }} />
+    </svg>
+  );
+}
 
 export default function ProfilePage() {
   const { data: session } = useSession();
@@ -148,64 +169,107 @@ export default function ProfilePage() {
       {/* Цели */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
         className="bg-white rounded-3xl p-6 md:p-8 shadow-xl">
-        <div className="mb-6">
-          <h3 className="text-xl font-bold text-[#1a1e5e]">Мои цели</h3>
-          <p className="text-sm text-[#4a5a8a] mt-0.5">Наведите на цель чтобы изменить</p>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="text-xl font-bold text-[#1a1e5e]">Мои цели</h3>
+            <p className="text-xs text-[#4a5a8a] mt-0.5">Нажмите на карточку чтобы изменить цель</p>
+          </div>
         </div>
 
         {loading ? (
-          <div className="space-y-4">
-            {[...Array(4)].map((_, i) => <div key={i} className="h-16 bg-[#c5d3f0]/20 rounded-xl animate-pulse" />)}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-48 bg-[#c5d3f0]/15 rounded-2xl animate-pulse" />
+            ))}
           </div>
         ) : goals.length === 0 ? (
           <p className="text-[#4a5a8a] text-sm py-8 text-center">Цели не установлены</p>
         ) : (
-          <div className="space-y-6">
-            {goals.map((g) => {
-              const color  = METRIC_COLORS[g.metric] ?? '#6b8dd6';
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {goals.map((g, i) => {
+              const meta   = METRIC_META[g.metric] ?? { label: g.metric, color: '#6b8dd6', icon: '🎯', tip: '' };
               const isEdit = editId === g.id;
+              const done   = g.percent >= 100;
+              const ringColor = done ? '#4ade80' : meta.color;
+
               return (
-                <motion.div key={g.id} layout className="group">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold text-[#1a1e5e]">
-                      {METRIC_LABELS[g.metric] ?? g.metric}
-                    </span>
-                    <AnimatePresence mode="wait">
-                      {isEdit ? (
-                        <motion.div key="edit" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                          className="flex items-center gap-1.5">
-                          <input type="number" value={editVal} onChange={e => setEditVal(e.target.value)} autoFocus
-                            className="w-24 sm:w-28 px-2.5 py-1.5 text-sm text-[#1a1e5e] bg-white border border-[#6b8dd6] rounded-lg focus:outline-none" />
-                          <span className="text-xs text-[#4a5a8a]">{g.unit}</span>
+                <motion.div key={g.id}
+                  initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.07 }}
+                  onClick={() => { if (!isEdit) { setEditId(g.id); setEditVal(String(g.target)); } }}
+                  className={`relative rounded-2xl p-4 cursor-pointer transition-all border select-none
+                    ${isEdit
+                      ? 'border-[#6b8dd6] bg-[#6b8dd6]/5 shadow-lg'
+                      : 'border-[#c5d3f0]/30 bg-[#f9fafe] hover:bg-[#f0f4ff] hover:border-[#6b8dd6]/40 hover:shadow-md'
+                    }`}
+                >
+                  {/* Иконка + имя */}
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-lg">{meta.icon}</span>
+                    {done && (
+                      <span className="text-[10px] font-bold text-green-600 bg-green-100 px-1.5 py-0.5 rounded-full">
+                        ✓ Цель
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs font-semibold text-[#4a5a8a] mb-3">{meta.label}</p>
+
+                  {/* Кольцо прогресса */}
+                  <AnimatePresence mode="wait">
+                    {isEdit ? (
+                      <motion.div key="edit" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        className="flex flex-col items-center gap-2 py-2"
+                        onClick={e => e.stopPropagation()}>
+                        <p className="text-[10px] text-[#4a5a8a]">Новая цель</p>
+                        <input
+                          type="number"
+                          value={editVal}
+                          onChange={e => setEditVal(e.target.value)}
+                          autoFocus
+                          className="w-full text-center px-2 py-1.5 text-sm font-bold text-[#1a1e5e]
+                                     border border-[#6b8dd6] rounded-xl focus:outline-none bg-white"
+                        />
+                        <span className="text-[10px] text-[#4a5a8a]">{g.unit}</span>
+                        <div className="flex gap-2 mt-1">
                           <button onClick={() => saveEdit(g)} disabled={saving}
-                            className="p-1.5 rounded-lg bg-[#6b8dd6]/20 text-[#6b8dd6] hover:bg-[#6b8dd6]/40 transition-colors">
-                            <Check className="w-3.5 h-3.5" />
+                            className="flex items-center gap-1 px-3 py-1 rounded-xl bg-[#6b8dd6] text-white text-xs font-semibold hover:bg-[#5a7cc5] transition-colors disabled:opacity-50">
+                            <Check className="w-3 h-3" /> Сохранить
                           </button>
                           <button onClick={() => setEditId(null)}
-                            className="p-1.5 rounded-lg bg-[#c5d3f0]/20 text-[#4a5a8a] hover:bg-[#c5d3f0]/40 transition-colors">
-                            <X className="w-3.5 h-3.5" />
+                            className="p-1.5 rounded-xl bg-[#c5d3f0]/30 text-[#4a5a8a] hover:bg-[#c5d3f0]/60 transition-colors">
+                            <X className="w-3 h-3" />
                           </button>
-                        </motion.div>
-                      ) : (
-                        <motion.div key="view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                          className="flex items-center gap-2">
-                          <span className="text-sm text-[#4a5a8a]">{g.current} / {g.target} {g.unit}</span>
-                          <button onClick={() => { setEditId(g.id); setEditVal(String(g.target)); }}
-                            className="p-1.5 rounded-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 hover:bg-[#6b8dd6]/10 text-[#4a5a8a] hover:text-[#6b8dd6] transition-all">
-                            <Pencil className="w-3.5 h-3.5" />
-                          </button>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                  <div className="h-2.5 bg-[#c5d3f0]/25 rounded-full overflow-hidden">
-                    <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(g.percent, 100)}%` }}
-                      transition={{ duration: 1, ease: 'easeOut' }}
-                      className="h-full rounded-full" style={{ backgroundColor: color }} />
-                  </div>
-                  <p className="text-xs mt-1 font-medium" style={{ color: g.percent >= 100 ? '#4ade80' : color }}>
-                    {g.percent}%{g.percent >= 100 ? ' ✓ Цель достигнута' : ''}
-                  </p>
+                        </div>
+                      </motion.div>
+                    ) : (
+                      <motion.div key="view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        className="flex flex-col items-center">
+                        <div className="relative">
+                          <Ring pct={g.percent} color={ringColor} size={88} />
+                          <div className="absolute inset-0 flex flex-col items-center justify-center">
+                            <span className="text-base font-bold" style={{ color: ringColor }}>
+                              {g.percent}%
+                            </span>
+                          </div>
+                        </div>
+                        <div className="mt-2 text-center">
+                          <p className="text-sm font-bold text-[#1a1e5e]">
+                            {typeof g.current === 'number'
+                              ? g.current % 1 === 0 ? g.current.toLocaleString('ru-RU') : g.current
+                              : g.current}
+                            <span className="text-[10px] font-normal text-[#4a5a8a] ml-0.5">{g.unit}</span>
+                          </p>
+                          <p className="text-[10px] text-[#4a5a8a] mt-0.5">
+                            из {g.target.toLocaleString('ru-RU')} {g.unit}
+                          </p>
+                          {(g.daysCount ?? 0) > 0 && (
+                            <p className="text-[9px] text-[#c5d3f0] mt-1">{meta.tip}</p>
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               );
             })}

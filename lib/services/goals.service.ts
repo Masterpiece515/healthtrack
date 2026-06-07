@@ -8,29 +8,36 @@ import type { UpsertGoalInput } from '@/lib/validators/goals.schema';
 export function getUserGoals(userId: string) {
   const rows = db.select().from(goals).where(eq(goals.userId, userId)).all();
 
-  const lastEntry = db
+  // Берём последние 7 записей для среднего значения
+  const recent = db
     .select()
     .from(healthEntries)
     .where(eq(healthEntries.userId, userId))
     .orderBy(desc(healthEntries.date))
-    .limit(1)
-    .all()
-    .at(0);
+    .limit(7)
+    .all();
 
+  const avg = (arr: number[]) =>
+    arr.length ? Math.round((arr.reduce((s, v) => s + v, 0) / arr.length) * 10) / 10 : 0;
+
+  // Вес — последнее значение; остальное — среднее за 7 дней
+  const lastWeight = recent.at(0)?.weight ?? 0;
   const currentValues: Record<string, number> = {
-    steps:    lastEntry?.steps      ?? 0,
-    sleep:    lastEntry?.sleepHours ?? 0,
-    weight:   lastEntry?.weight     ?? 0,
-    calories: lastEntry?.calories   ?? 0,
+    steps:    avg(recent.map(e => e.steps)),
+    sleep:    avg(recent.map(e => e.sleepHours)),
+    weight:   lastWeight,
+    calories: avg(recent.filter(e => e.calories != null).map(e => e.calories as number)),
   };
 
-  return rows.map(g => ({
-    ...g,
-    current: currentValues[g.metric] ?? 0,
-    percent: g.metric === 'weight'
-      ? Math.max(0, Math.round((1 - Math.abs(currentValues[g.metric] - g.target) / g.target) * 100))
-      : Math.min(Math.round((currentValues[g.metric] / g.target) * 100), 150),
-  }));
+  const daysCount = recent.length; // сколько дней в расчёте
+
+  return rows.map(g => {
+    const cur = currentValues[g.metric] ?? 0;
+    const pct = g.metric === 'weight'
+      ? Math.max(0, Math.round((1 - Math.abs(cur - g.target) / g.target) * 100))
+      : Math.min(Math.round((cur / g.target) * 100), 150);
+    return { ...g, current: cur, percent: pct, daysCount };
+  });
 }
 
 // ── Создать или обновить цель ──────────────────────────────────────────────
