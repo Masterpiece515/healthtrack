@@ -32,12 +32,24 @@ const METRICS: {
 
 // ── Фильтр по периоду ─────────────────────────────────────────────────────────
 function filterDays(entries: HealthEntry[], days: Period): HealthEntry[] {
-  const cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() - days);
+  if (entries.length === 0) return [];
+
+  const sorted = [...entries].sort((a, b) => b.date.localeCompare(a.date));
+
+  // Берём дату последней записи как точку отсчёта (а не сегодня)
+  const lastDate = new Date(sorted[0].date + 'T12:00:00');
+  const cutoff = new Date(lastDate);
+  cutoff.setDate(cutoff.getDate() - days + 1);
   cutoff.setHours(0, 0, 0, 0);
-  return entries
-    .filter(e => new Date(e.date) >= cutoff)
+
+  const inRange = sorted
+    .filter(e => new Date(e.date + 'T12:00:00') >= cutoff)
     .sort((a, b) => a.date.localeCompare(b.date));
+
+  // Если в диапазоне нет данных — возвращаем последние N записей
+  return inRange.length > 0
+    ? inRange
+    : sorted.slice(0, days).sort((a, b) => a.date.localeCompare(b.date));
 }
 
 function fmtDate(iso: string): string {
