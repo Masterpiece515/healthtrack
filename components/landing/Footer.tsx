@@ -43,15 +43,7 @@ export function Footer() {
 
           {/* Копирайт */}
           <p className="text-white/60 text-xs sm:text-sm">
-            {new Date().getFullYear()} HealthTrack ·{' '}
-            <a
-              href="https://www.flaticon.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-white/80"
-            >
-              Иконки — Flaticon
-            </a>
+            {new Date().getFullYear()} HealthTrack
           </p>
 
         </div>
